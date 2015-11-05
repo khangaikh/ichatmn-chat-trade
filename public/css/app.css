@@ -1,0 +1,55 @@
+#login-screen, #main-chat-screen {
+  padding-top: 10px;
+}
+.main {
+  padding-top: 10px;
+  text-align: center;
+}
+#conversation {
+  font-size: 18px;
+  margin: 0px;
+  height: 300px;
+  overflow: scroll;
+}
+.final {
+  font-color: #000;
+}
+.interim {
+  font-color: #f00;
+}
+
+#paper{
+  background:url('img/china_bg.gif');
+  overflow:hidden;
+  position: relative;
+}
+
+hgroup{
+  position: fixed;
+  background-color: rgba(255, 255, 255, 0.7);
+  width: 400px;
+  height: 78px;
+  top: 50%;
+  left: 50%;
+  margin: -120px 0 0 -225px;
+  text-align: center;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 0 3px rgba(100, 100, 100, 0.1), 0 3px 1px #D4D4D4;
+  color: #555;
+}
+
+h1{
+  font-size: 22px;
+  padding-bottom: 8px;
+}
+
+#cursors{
+  position:relative;
+}
+
+#cursors .cursor{
+  width:15px;
+  height:22px;
+  background:url('img/pointer.png') no-repeat -4px 0;
+}

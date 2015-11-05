@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>iChat.mn 1.0</title>
+  <link rel="stylesheet" type="text/css" href="components/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="components/font-awesome/css/font-awesome.css">
+  <link rel="stylesheet" href="css/flags.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div class="main col-md-6 col-md-offset-3">
+    <div class="alert alert-danger" id="errors"></div>
+    <div id="login-screen">
+      <p class="lead">Welcome to iChat.mn Trading room </p>
+      <p>Please enter your interest type , password and draw your secret to enter.</p>
+        <select id="interest" class="form-control input-lg">
+          <option>Buyer</option>
+           <option>Seller</option>
+        </select>
+        <br>
+        Password:
+        <input type="text" class="form-control input-lg"  placeholder="Please type your passwod" id="locationpass">
+        <br>
+        Draw your secret key
+        <canvas id="paper" width="1000px" height="600px">
+            Your browser needs to support canvas for this to work!
+        </canvas>
+        <br>
+        <button id="login_trade" type="button" class="btn btn-lg btn-success " style="width:100%"> Login</button>
+      </div>
+    </div>
+
+    <div class="row" id="main-chat-screen">
+      <div class="col-md-3">
+        <ul id="rooms" class="list-group"></ul>
+        <ul id="people" class="list-group"></ul>
+      </div>
+      <div class="col-md-6">
+        <div id="conversation">
+          <ul id="msgs" class="list-unstyled"></ul>
+        </div>
+        <form id="chatForm" class="form-inline">
+          <div class="form-group">
+            <input type="text" class="form-control input-lg" placeholder="Your message" id="msg">
+          </div>
+          <input type="submit" name="send" id="send" value="Send" class="btn btn-success btn-lg">
+         <!-- <input type="button" name="start_button" id="start_button" value="Record" onclick="startButton(event)" class="btn btn-info btn-lg"> -->
+          <div class="btn-group">
+            <button type="button" class="btn btn-lg btn-info dropdown-toggle" data-toggle="dropdown" >
+              Actions <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#" name="createRoom" data-toggle="modal" data-target="#roomModal">Create private room</a></li>
+              <li><a href="#" name="disconnect" id="disconnect">Disconnect from chat</a></li>
+            </ul>
+          </div>
+          <div class="btn-group" id="private_actions" >
+            <button type="button" class="btn btn-lg btn-info dropdown-toggle" data-toggle="dropdown" >
+              Set up trading <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#" name="setUp" data-toggle="modal" data-target="#tradeModal">Set up</a></li>
+              <li><a href="#" name="disconnect" id="disconnect">Disconnect from private room</a></li>
+            </ul>
+          </div>
+        </form>
+      </div>
+       <div class="col-md-2">
+        <ul class="list-unstyled" id="updates"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal start -->
+  <div class="modal fade" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="createRoomLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="createRoomLabel">Create private room</h4>
+        </div>
+        <div class="modal-body">
+          <p>You can  create a private chat room here. Names have to be unique. </p>
+          <br>
+          <form class="form-inline" id="createRoomForm">
+            Room name :
+            <input type="text" class="form-control input-lg"  placeholder="Room name" id="createRoomName">
+            Invite user :
+            <select id="users" class="form-control input-lg">
+            </select>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">Close</button>
+          <button data-dismiss="modal" id="createRoomBtn" class="btn btn-success btn-lg">Create room</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal end -->
+
+  <!-- Modal start -->
+  <div class="modal fade" id="tradeModal" tabindex="-1" role="dialog" aria-labelledby="createRoomLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="createRoomLabel">Setting up trading room info</h4>
+        </div>
+        <div class="modal-body">
+          <p>You can  set up a trading room with your buyer or seller. </p>
+          <br>
+          <form class="form-inline" id="createRoomForm">
+            Your interest type :
+            <select id="interest" class="form-control input-lg">
+                <option value="buyer">Buyer</option>
+                <option value="seller">Seller</option>
+            </select>
+            <br />
+            <br />
+            Time of your trading :
+            <select id="users" class="form-control input-lg">
+                <option value="1">01</option>
+                <option value="2">02</option>
+                <option value="3">03</option>
+                <option value="4">04</option>
+                <option value="5">05</option>
+                <option value="6">06</option>
+                <option value="7">07</option>
+                <option value="8">08</option>
+                <option value="9">09</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+                <option value="21">21</option>
+                <option value="22">22</option>
+                <option value="23">23</option>
+                <option value="24">24</option>
+            </select>
+            Minute :
+            <select id="users" class="form-control input-lg">
+                <option value="1">01</option>
+                <option value="2">02</option>
+                <option value="3">03</option>
+                <option value="4">04</option>
+                <option value="5">05</option>
+                <option value="6">06</option>
+                <option value="7">07</option>
+                <option value="8">08</option>
+                <option value="9">09</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+                <option value="21">21</option>
+                <option value="22">22</option>
+                <option value="23">23</option>
+                <option value="24">24</option>
+                <option value="25">25</option>
+                <option value="26">26</option>
+                <option value="27">27</option>
+                <option value="28">28</option>
+                <option value="29">29</option>
+                <option value="30">30</option>
+                <option value="31">31</option>
+                <option value="32">32</option>
+                <option value="33">33</option>
+                <option value="34">34</option>
+                <option value="35">35</option>
+                <option value="36">36</option>
+                <option value="37">37</option>
+                <option value="38">38</option>
+                <option value="39">39</option>
+                <option value="40">40</option>
+                <option value="41">41</option>
+                <option value="42">42</option>
+                <option value="43">43</option>
+                <option value="44">44</option>
+                <option value="45">45</option>
+                <option value="46">46</option>
+                <option value="47">47</option>
+                <option value="48">48</option>
+                <option value="49">49</option>
+                <option value="50">50</option>
+                <option value="51">51</option>
+                <option value="52">52</option>
+                <option value="53">53</option>
+                <option value="54">54</option>
+                <option value="55">55</option>
+                <option value="56">56</option>
+                <option value="57">57</option>
+                <option value="58">58</option>
+                <option value="59">59</option>
+                <option value="0">00</option>
+            </select>
+             <br />
+            <br />
+            Your password :
+             <input type="password" class="form-control input-lg" name="user_pass" />
+          </form>
+          <br>  
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">Close</button>
+          <button data-dismiss="modal" id="createRoomBtn" class="btn btn-success btn-lg">Set up and notify</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal end -->
+
+  <!-- Modal start -->
+  <div class="modal fade" id="uploadFile" tabindex="-1" role="dialog" aria-labelledby="addImage" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="createRoomLabel">Select file to share</h4>
+        </div>
+        <div class="modal-body">
+          <p>You can  upload files up to 5MB. </p>
+          <br>
+          <form id ="uploadForm" enctype ="multipart/form-data" action="/api/photo"  method="post"  class="form-inline">
+            <input type="file" class="form-control input-lg" name="userPhoto" />
+            <input type="submit" class="btn btn-lg btn-default" value="Upload Image" id="upload"/>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal end -->
+
+  <!-- Modal start -->
+  <div class="modal fade" id="getFileModal" tabindex="-1" role="dialog" aria-labelledby="getImage" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="createRoomLabel">Select file to share</h4>
+        </div>
+        <div class="modal-body">
+          <img src="">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal end -->
+
+  <script src="components/jquery/dist/jquery.js"></script>
+  <script src="components/bootstrap/dist/js/bootstrap.js"></script>
+  <script src="/socket.io/socket.io.js"></script>  
+  <script src="js/client.js"></script>
+  <script src="js/delivery.js"></script>
+</body>
+</html>

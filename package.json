@@ -1,0 +1,31 @@
+{
+  "name": "chat",
+  "version": "0.0.1",
+  "description": "node.js/socket.io chat app",
+  "main": "server.js",
+  "dependencies": {
+    "bower": "~1.2.8",
+    "ejs": "~0.8.5",
+    "express": "~3.4.8",
+    "multer": "^1.0.3",
+    "sqlite3": "^3.0.9",
+    "url": "~0.11.0",
+    "node-uuid": "~1.4.1",
+    "nodemon": "~1.0.13",
+    "npid": "~0.4.0",
+    "shrinkwrap": "~0.0.3",
+    "socket.io": "~0.9.16",
+    "underscore": "~1.5.2"
+  },
+  "devDependencies": {},
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/khangaikh/ichatmn-chat.git"
+  },
+  "author": "Khangai Khurelbaatar",
+  "url": "http://ichat.mn",
+  "email": "Khangai@alchemist.mn",
+  "license": "free",
+  "homepage": "https://ichat.mn"
+}
