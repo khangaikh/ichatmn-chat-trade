@@ -174,45 +174,63 @@ io.sockets.on("connection", function (socket) {
 	var chat_id = 0;
 	var delivery = dl.listen(socket);
 	var secrets = require('secrets.js');
+	var StringDecoder = require('string_decoder').StringDecoder;
+	var decoder = new StringDecoder('utf8');
 
 	delivery.on('receive.success',function(file){
-
-
-
+		var params = file.params;
+		console.log("Room id 1: "+params);
+		//When file is recieved
 		fs.writeFile(file.name,file.buffer, function(err){
 			
 			var sqlite3 = require('sqlite3').verbose();
-			var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichat/ichat.db");
+			var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+			
+			//First encrypt config
+			var crypto = require('crypto'),
+			    algorithm = 'aes-256-ctr',
+			    password = 'file.name';
+
+			//Second 
+			var decoder = new StringDecoder('utf8');
+			var textChunk = decoder.write(file.buffer);
+			var cipher = crypto.createCipher(algorithm,password)
+  			var crypted = Buffer.concat([cipher.update(textChunk),cipher.final()]);
+
 			// split into 10 shares with a threshold of 5
-			var shares = secrets.share(file.buffer, 10, 5); 
+			var shares = secrets.share(crypted.toString(), 10, 5); 
 
 			for(var i=0; i<shares.length; i++){
-
+				/*db.run("INSERT INTO image_parts (image_id, content, share_no) VALUES (?,?,?)", {
+			          1: file.name,
+			          2: shares[i],
+			          3: i
+			      	});
+			      	db.close();*/
 			}
 
-			db.close();
+		//	db.close();
 
 		  	if(err){
-		    	console.log('File could not be saved.');
+		    	console.log('File could not be saved.->');
+		    	console.log(err);
 		  	}else{
 		    	console.log('File saved.');
 		  	};
 		});
 	});
-
+	
+	
+	
 	// Start listening for mouse move events
 	socket.on('mousemove', function (data) {
-
-		// This line sends the event (broadcasts it)
-		// to everyone except the originating client.
 		socket.broadcast.emit('moving', data);
-
-
 	});
 
-	socket.on("joinserver", function(name, device, url) {
+	socket.on("joinserver", function(name, device, url, interest) {
 		
 		var exists = false;
+		var authentication = true;
 		var ownerRoomID = inRoomID = null;
 		
 		/* Getting url by it is given parameter */
@@ -222,10 +240,78 @@ io.sockets.on("connection", function (socket) {
 		var url_parts = urlp.parse(url, true);
 		var query = url_parts.query;
 		chat_id = query.id;
+		console.log(chat_id);
+
+		var requestData = {
+            "public_key": chat_id,
+            "pass": name,
+            "solutions": 3
+		}
+
+		console.log("Connecting to KDS...");
+   	 	var request = require("request");
+   	 	request({
+		    url: 'http://localhost/key_distribution/request_for_trade_login.php',
+		    method: "POST",
+		    json: true,
+		    headers: {
+		        "content-type": "application/json",
+		    },
+		    body: JSON.stringify(requestData)
+			},function (error, response, body) {
+	        if (!error) {
+	            console.log(body);
+	            var sqlite3 = require('sqlite3').verbose();
+				var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+				db.all("SELECT * FROM tickets WHERE public_key=?",chat_id, function(err, rows) {  
+			        if(rows.length==0){
+			        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+			        	return;
+			        }else{
+			        	rows.forEach(function (row) { 
+			        		if(interest=='Buyer'){
+			        			console.log("Buyer checking in");
+			        			if(row.buyer_key==name){
+			        				console.log("Buyer checking passed");
+			        			}else{
+			        				console.log("Buyer checking failed");
+			        				console.log("KDS closed");
+			        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+			        				authentication = false;
+			        			}
+			        		}else{
+			        			console.log("Seller checking in");
+			        			if(row.seller_key==name){
+			        				console.log("Seller checking passed");
+			        			}else{
+			        				console.log("Seller checking failed");
+			        				console.log("KDS closed");
+			        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+			        				authentication = false;
+			        			}
+			        		}
+			        		  
+					    })  
+					}
+			    });
+	        }
+	        else {
+	        	console.log("Failed to connect to KDS...");
+	            console.log("error: " + error)
+	            console.log("response.statusCode: " + response.statusCode)
+	            console.log("response.statusText: " + response.statusText)
+	     	}
+		});
+
+		if (!authentication) {
+			socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+			return;
+		}
 
 		if(chat_id==0){
 			purge(socket, "disconnect",chat_id);
 		}
+
 		/* Checking if public room is created */
 
 		var match = false;
@@ -238,8 +324,8 @@ io.sockets.on("connection", function (socket) {
 		if(!match){
 			/* Adding public chat user */
 			socket.emit("sendRoomID", {id: chat_id});
-			people[chat_id] = {"name" : chat_id, "owns" : chat_id, "inroom": chat_id, "device": device, "type" : 0};
-			var room_public = 'Public chat :' + chat_id;
+			people[chat_id] = {"name" : chat_id, "owns" : chat_id, "inroom": chat_id, "device": interest, "type" : 0};
+			var room_public = 'Trading chat :' + 'Buyer/Seller';
 			var room = new Room(room_public, chat_id, chat_id, chat_id);
 			
 			rooms[chat_id] = room;
@@ -251,37 +337,15 @@ io.sockets.on("connection", function (socket) {
 			console.log("Socket room :" + socket.room);
 			chatHistory[socket.room] = [];
 		}
-		/*Getting user information from database*/
-
-		var sqlite3 = require('sqlite3').verbose();
-		var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichat/ichat.db");
-		var username="bulgaa";
 		
-		db.all("SELECT * FROM chat_user WHERE pass='du5j8foE'", function(err, rows) {  
-        
-        if(rows.length==0){
-        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-        }else{
-	        	rows.forEach(function (row) { 
-	        		username =  row.user_id;
-	            	console.log(row.user_id, row.key);  
-			    })  
-			}
-        });
-
-           
-		
-		/*Checking user creditentions on openssl crypt*/
-		
-	
 
 		
-		people[socket.id] = {"name" : name, "owns" : ownerRoomID, "inroom": inRoomID, "device": device, "type": chat_id};
+		people[socket.id] = {"name" : name, "owns" : ownerRoomID, "inroom": inRoomID, "device": interest, "type": chat_id};
 		var message = "You have connected to the server.";
 		socket.emit("update", message);
 		io.sockets.emit("update", people[socket.id].name + " is online.")
 		socket.emit("sendUser", {user: people[socket.id].name});
-		db.close();
+		
 		/*  User creates room for private chating room with only two user*/
 		/*
 		var id = uuid.v4();
@@ -292,7 +356,7 @@ io.sockets.on("connection", function (socket) {
 
 		if (_.contains((room.people), socket.id)) {
 			socket.emit("update", "You have already joined this room.");
-		} else {
+		}else {
 			if (people[socket.id].inroom !== null) {
 		    		socket.emit("update", "You are already in a room ("+rooms[people[socket.id].inroom].name+"), please leave it first to join another room.");
 		    	} else {
@@ -318,7 +382,7 @@ io.sockets.on("connection", function (socket) {
 	});
 
 	socket.on("getOnlinePeople", function(fn) {
-                fn({people: people});
+        fn({people: people});
     });
 
     socket.on("getFile", function(filename) {
@@ -331,6 +395,41 @@ io.sockets.on("connection", function (socket) {
 	    delivery.on('send.success',function(file){
 	    	console.log('File successfully sent to client!');
 	    });
+    });
+
+    socket.on("checkPassword", function(filename, url) {
+    	
+    	console.log('Current url :' + url);
+		var urlp = require('url');
+		var url_parts = urlp.parse(url, true);
+		var query = url_parts.query;
+		chat_id = query.id;
+		var fileName;
+
+		db.all("SELECT * FROM tickets WHERE public_key=?", chat_id, function(err, rows) {  
+        
+        if(rows.length==0){
+        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+        }else{
+	        	rows.forEach(function (row) { 
+	        		fileName =  row.secret_name; 
+			    })  
+			}
+        });
+		console.log(fileName);
+		var pathToFile= '/home/khangai/Desktop/ichatmn-chat/'+fileName;
+		delivery.on('delivery.connect',function(delivery){
+	 
+		    delivery.send({
+		      name: 'sample-image.jpg',
+		      path : pathToFile
+		    });
+		 
+		    delivery.on('send.success',function(file){
+		      console.log('File successfully sent to client!');
+		    });
+ 
+  		});
     });
 
 	socket.on("countryUpdate", function(data) { //we know which country the user is from
@@ -398,15 +497,156 @@ io.sockets.on("connection", function (socket) {
 		}
 	});
 
+	socket.on("private_send", function(msTime, msg) {
+		//process.exit(1);
+		var re = /^[w]:.*:/;
+		var whisper = re.test(msg);
+		var whisperStr = msg.split(":");
+		var found = false;
+		if (whisper) {
+			var whisperTo = whisperStr[1];
+			var keys = Object.keys(people);
+			
+			if (keys.length != 0) {
+				for (var i = 0; i<keys.length; i++) {
+					if (people[keys[i]].name === whisperTo) {
+						var whisperId = keys[i];
+						found = true;
+						if (socket.id === whisperId) { //can't whisper to ourselves
+							socket.emit("update", "You can't whisper to yourself.");
+						}
+						break;
+					} 
+				}
+			}
+			if (found && socket.id !== whisperId) {
+				var whisperTo = whisperStr[1];
+				var whisperMsg = whisperStr[2];
+				socket.emit("whisper", {name: "You"}, whisperMsg);
+				io.sockets.socket(whisperId).emit("whisper", msTime, people[socket.id], whisperMsg);
+			} else {
+				socket.emit("update", "Can't find " + whisperTo);
+			}
+		} else {
+
+			if (io.sockets.manager.roomClients[socket.id]['/'+socket.room] !== undefined ) {
+				var str2 = "file:";
+				if(msg.indexOf(str2) != -1){
+					var filename = msg.split(":");
+				    io.sockets.in(socket.room).emit("private_chat", msTime, people[socket.id], filename[1], 1);
+				}
+				var str3 = "Notify to>";
+				if(msg.indexOf(str3) != -1){
+					var interest = msg.split(">");
+				    io.sockets.in(socket.room).emit("private_chat", msTime, people[socket.id], interest[1], 2);
+				}
+
+				var str4 = "File upload<";
+				if(msg.indexOf(str4) != -1){
+					var fileupload = msg.split("<");
+				    io.sockets.in(socket.room).emit("private_chat", msTime, people[socket.id], fileupload[1], 3);
+				}
+
+				var str5 = "Draw your secret key<";
+				if(msg.indexOf(str5) != -1){
+				    io.sockets.in(socket.room).emit("private_chat", msTime, people[socket.id], msg, 4);
+				}
+
+				var str6 = "localhost:3001?id=";
+				if(msg.indexOf(str6) != -1){
+				    io.sockets.in(socket.room).emit("private_chat", msTime, people[socket.id], msg, 5);
+				}
+
+				else{
+					io.sockets.in(socket.room).emit("private_chat", msTime, people[socket.id], msg, 0);
+				}
+				
+				socket.emit("isTyping", false);
+				if (_.size(chatHistory[socket.room]) > 10) {
+					chatHistory[socket.room].splice(0,1);
+				} else {
+					console.log("Socket room :" + socket.room);
+					chatHistory[socket.room].push(people[socket.id].name + ": " + msg);
+				}
+		    } 
+		    else {
+				socket.emit("private_update", "Please connect to a room.");
+		    }
+			
+		}
+	});
+
 	socket.on("disconnect", function() {
 		if (typeof people[socket.id] !== "undefined") { //this handles the refresh of the name screen
 			purge(socket, "disconnect",chat_id);
 		}
 	});
 
+	socket.on("save_key", function(curUser,roomID,dataURL) {
+
+		var dataString = dataURL.split( "," )[ 1 ];
+    	var buffer = new Buffer( dataString, 'base64');
+
+		console.log("Image created");
+
+		if(buffer.length<256){
+			//Image is smaller than 256 bit alert draw agian
+			socket.emit("private_update", "Please redraw bigger image to a set key.");
+		}else{
+			var sqlite3 = require('sqlite3').verbose();
+			var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+
+			db.all("SELECT * FROM tickets", function(err, rows) {  
+        
+	        if(rows.length==0){
+	        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+	        }else{
+		        	rows.forEach(function (row) { 
+		        		if(row.room_id == roomID){ // ticket by room id
+		        			var buyer_key = row.buyer_key;
+		        			var seller_key = row.seller_key;
+		        			var time = row.time;
+		        			var minute = row.minute;
+		        			//Since we are not checking redrawing we are not including this line
+		        			//var encrypt_string = dataString +"*" + buyer_key +"*"+ seller_key +"*"+ time +"*"+minute;
+		        			var encrypt_string = buyer_key +"*"+ seller_key +"*"+ time +"*"+minute;
+		        			var encrypt_string_key = buyer_key +"*"+ seller_key;
+		        			//Encryption with openssl with password of both users
+							var crypto = require('crypto'),algorithm = 'aes-256-ctr',password = encrypt_string_key;
+							var cipher = crypto.createCipheriv(algorithm, password);
+							//Encrypted keys outpur would hexedeicmel 256 bit code
+							var encrypted = cipher.update(encrypt_string, 'utf8', 'hex');
+							encrypted += cipher.final('hex');
+							console.log('Encrypted secret key: ', encrypted);
+							console.log("Seller is setting up secret key"); 
+							//Saving encrypted key
+							db.run("UPDATE tickets SET secret_key =? WHERE room_id=?", {
+					          1: encrypted,
+					          2: roomID
+					      	});
+					      	db.close();
+					      	socket.emit("update_private_msg", "Draw your secret key<");
+		        		}
+				    })  
+				}
+	        });
+		socket.emit("update_private_msg", "Draw your secret key<");
+			
+		}
+	});
+	// Finishing set up process
+	socket.on("finish", function(curUser,roomID) {
+		//Clearing all private chat information
+		//if (typeof people[socket.id] !== "undefined") { //this handles the refresh of the name screen
+		//	purge(socket, "disconnect",chat_id);
+			socket.emit("update_private_msg", "localhost:3001?id="+roomID+"");
+		//}
+	});
+
 	//Room functions
 	socket.on("createRoom", function(name,invite) {
 		if (!people[socket.id].owns) {
+			console.log(id + " is creating transfer");  
 			var id = uuid.v4();
 			var room = new Room(name, id, socket.id, chat_id);
 			room.setLimit(2);
@@ -415,17 +655,74 @@ io.sockets.on("connection", function (socket) {
 			sizeRooms = _.size(rooms);
 			io.sockets.emit("roomList", {rooms: rooms, count: sizeRooms, type: chat_id });
 			//add room to socket, and auto join the creator of the room
-			socket.room = name;
-			socket.join(socket.room);
+			//socket.room = name;
+			//socket.join(socket.room);
 			people[socket.id].owns = id;
 			people[socket.id].inroom = id;
 			room.addPerson(socket.id);
-			socket.emit("update", "Welcome to " + room.name + ".");
-			socket.emit("sendRoomID", {id: id});
+			//socket.emit("update_private", "Welcome to " + room.name + ".");
+			socket.emit("sendprivateRoomID", {id: id});
 			chatHistory[socket.room] = [];
+			console.log("Room created with id" + room); 
 		} else {
 			socket.emit("update", "You have already created a room.");
 		}
+	});
+
+	//User save functions
+	socket.on("save_user", function(interest, time, minute, pass, roomID, curUser) {
+		var sqlite3 = require('sqlite3').verbose();
+		var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+		if(interest == 1){
+			console.log("Seller is setting up"); 
+			db.run("INSERT INTO tickets (seller, room_id, time, minute, seller_key) VALUES (?,?,?,?,?)", {
+	          1: curUser,
+	          2: roomID,
+	          3: time,
+	          4: minute,
+	          5: pass
+	      	});
+	      	db.close();
+	      	socket.emit("update_private_msg", "Notify to>Buyer");
+		}else{
+			console.log("Buyer is setting up");
+			db.run("INSERT INTO tickets (buyer, room_id, time, minute, buyer_key) VALUES (?,?,?,?,?)", {
+	          1: curUser,
+	          2: roomID,
+	          3: time,
+	          4: minute,
+	          5: pass
+	      	});
+	      	db.close();
+	      	socket.emit("update_private_msg", "Notify to>Seller");
+		}
+	
+	});
+
+	//User setting functions
+	socket.on("set_user", function( pass, roomID, curUser, interest) {
+		var sqlite3 = require('sqlite3').verbose();
+		var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+		if(interest == 1){
+			console.log("Seller is setting up"); 
+			db.run("UPDATE tickets SET seller =?, seller_key =? WHERE room_id=?", {
+	          1: curUser,
+	          2: pass,
+	          3: roomID
+	      	});
+	      	db.close();
+	      	socket.emit("update_private_msg", "File upload<Seller");
+		}else{
+			console.log("Buyer is setting up");
+			db.run("UPDATE tickets SET buyer =?, buyer_key =? WHERE room_id=?", {
+	          1: curUser,
+	          2: pass,
+	          3: roomID
+	      	});
+	      	db.close();
+	      	socket.emit("update_private_msg", "File upload<Seller");
+		}
+	
 	});
 
 	socket.on("check", function(name, fn) {
@@ -442,7 +739,7 @@ io.sockets.on("connection", function (socket) {
 		 if (socket.id === room.owner) {
 			purge(socket, "removeRoom",chat_id);
 		} else {
-                	socket.emit("update", "Only the owner can remove a room.");
+            socket.emit("update", "Only the owner can remove a room.");
 		}
 	});
 
@@ -455,45 +752,17 @@ io.sockets.on("connection", function (socket) {
 				if (_.contains((room.people), socket.id)) {
 					socket.emit("update", "You have already joined this room.");
 				} else {
-					if (people[socket.id].inroom !== null) {
-				    		socket.emit("update", "You are already in a room ("+rooms[people[socket.id].inroom].name+"), please leave it first to join another room.");
-				    	} else {
-				    	/*  Feffie Hellman private key exchange for joinin users */
-				    	var p = 107, g = 2;
-					    var usernames = [];
-					    function generatePrivateKey() {   
-					        return Math.floor(Math.random() * 10) + 1;
-					    }
-					    function generatePublicKey(privateKey) {
-					        return ((Math.pow(g, privateKey)) % p);
-					    }
-					    function generateDecryptionKey(privateKey, publicKey) {
-					        return ((Math.pow(publicKey, privateKey)) % p);
-					    }
-
-					    // Encryption
-					    function encDecData(str, k) {       
-					        var encoded = "";
-					        for (i = 0; i < str.length; i++) {
-					            var a = str.charCodeAt(i);
-					            var b = a ^ k;    // bitwise XOR with any number, e.g. 123
-					            encoded = encoded + String.fromCharCode(b);
-					        }
-					        return encoded;
-					    }
-
-						room.addPerson(socket.id);
-						people[socket.id].inroom = id;
-						socket.room = room.name;
-						socket.join(socket.room);
-						user = people[socket.id];
-						io.sockets.in(socket.room).emit("update", user.name + " has connected to " + room.name + " room.");
-						socket.emit("update", "Welcome to " + room.name + ".");
-						socket.emit("sendRoomID", {id: id});
-						var keys = _.keys(chatHistory);
-						if (_.contains(keys, socket.room)) {
-							socket.emit("history", chatHistory[socket.room]);
-						}
+					room.addPerson(socket.id);
+					people[socket.id].inroom = id;
+					//socket.room = room.name;
+					//socket.join(socket.room);
+					user = people[socket.id];
+					io.sockets.in(socket.room).emit("update", user.name + " has connected to " + room.name + " room.");
+					socket.emit("update_private", "Welcome to " + room.name + ".");
+					socket.emit("sendprivateRoomID", {id: id});
+					var keys = _.keys(chatHistory);
+					if (_.contains(keys, socket.room)) {
+						socket.emit("history", chatHistory[socket.room]);
 					}
 				}
 			}

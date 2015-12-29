@@ -128,19 +128,8 @@ $(document).ready(function() {
       $("#msg").val("file:"+fileUID.name);
     });
 
-    delivery.on('receive.start',function(fileUID){
-      console.log('receiving a file!');
-    });
- 
-    delivery.on('receive.success',function(file){
-      if (file.isImage()) {
-        $('img').attr('src', file.dataURL());
-        $('#getFileModal').toggle();
-      };
-    });
-
   });
-socket.on('moving', function (data) {
+  socket.on('moving', function (data) {
 
     if(! (data.id in clients)){
       // a new user has come online. create a cursor for them
@@ -248,19 +237,41 @@ socket.on('moving', function (data) {
 
   //enter screen
   $("#login_trade").click(function() {
+    var name = $("#locationpass").val();
+    var key = $("#public_key").val();
     var interest = $("#interest").val();
-    var pass = $("#locationpass").val();
+    console.log("Checking key Pair:"+key);
 
-    if (name === "" || name.length < 2) {
+    var device = "desktop";
+    if (navigator.userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i)) {
+      device = "mobile";
+    }
+
+    if (name === "" || name.length < 2 || key =="" || key.length <2 ){
       $("#errors").empty();
-      $("#errors").append("Please enter a name");
+      $("#errors").append("Please enter a correct password an key pair");
       $("#errors").show();
     } else {
+
       var url = window.location.href; 
-      socket.emit("joinserver", name, device, url);
-      toggleNameForm();
-      toggleChatWindow();
-      $("#msg").focus();
+      var stringUrl= url.toString();
+      if(stringUrl.indexOf("?")){
+        socket.emit("joinserver", name, device, url, interest);
+        toggleNameForm();
+        toggleChatWindow();
+        $("#msg").focus();
+      }else{
+        if (key!=""){
+          var newString = url+'/?id='+key;
+          socket.emit("joinserver", name, device, newString, interest);
+          toggleNameForm();
+          toggleChatWindow();
+          $("#msg").focus();
+        }else{
+          alert("Please input your public in the box or URL?key");
+          return;
+        } 
+      }
     }
   });
 
@@ -316,7 +327,6 @@ socket.on('moving', function (data) {
     }
   });
 
-
   $("#showCreateRoom").click(function() {
     $("#createRoomForm").toggle();
   });
@@ -343,6 +353,23 @@ socket.on('moving', function (data) {
           }
         }
     });
+  });
+
+  $("#requestFile").click(function() {
+    
+    var delivery = new Delivery(socket);
+    socket.emit("checkPassword", filePassword, url);
+    
+    delivery.on('receive.start',function(fileUID){
+      console.log('receiving a file!');
+    });
+ 
+    delivery.on('receive.success',function(file){
+      if (file.isImage()) {
+        $('img').attr('src', file.dataURL());
+      };
+    });
+    
   });
 
   $("#rooms").on('click', '.joinRoomBtn', function() {
@@ -379,61 +406,11 @@ socket.on('moving', function (data) {
     }
   });
 
-
-/*
-  $("#whisper").change(function() {
-    var peopleOnline = [];
-    if ($("#whisper").prop('checked')) {
-      console.log("checked, going to get the peeps");
-      //peopleOnline = ["Tamas", "Steve", "George"];
-      socket.emit("getOnlinePeople", function(data) {
-        $.each(data.people, function(clientid, obj) {
-          console.log(obj.name);
-          peopleOnline.push(obj.name);
-        });
-        console.log("adding typeahead")
-        $("#msg").typeahead({
-            local: peopleOnline
-          }).each(function() {
-            if ($(this).hasClass('input-lg'))
-              $(this).prev('.tt-hint').addClass('hint-lg');
-        });
-      });
-      
-      console.log(peopleOnline);
-    } else {
-      console.log('remove typeahead');
-      $('#msg').typeahead('destroy');
-    }
-  });
-  // $( "#whisper" ).change(function() {
-  //   var peopleOnline = [];
-  //   console.log($("#whisper").prop('checked'));
-  //   if ($("#whisper").prop('checked')) {
-  //     console.log("checked, going to get the peeps");
-  //     peopleOnline = ["Tamas", "Steve", "George"];
-  //     // socket.emit("getOnlinePeople", function(data) {
-  //     //   $.each(data.people, function(clientid, obj) {
-  //     //     console.log(obj.name);
-  //     //     peopleOnline.push(obj.name);
-  //     //   });
-  //     // });
-  //     //console.log(peopleOnline);
-  //   }
-  //   $("#msg").typeahead({
-  //         local: peopleOnline
-  //       }).each(function() {
-  //         if ($(this).hasClass('input-lg'))
-  //           $(this).prev('.tt-hint').addClass('hint-lg');
-  //       });
-  // });
-*/
-
 //socket-y stuff
 socket.on("exists", function(data) {
   $("#errors").empty();
   $("#errors").show();
-  $("#errors").append(data.msg + " Try <strong>" + data.proposedName + "</strong>");
+  $("#errors").append(data.msg + " <strong>" + data.proposedName + "</strong>");
     toggleNameForm();
     toggleChatWindow();
 });
@@ -476,104 +453,105 @@ socket.on("history", function(data) {
   }
 });
 
-  socket.on("update", function(msg) {
-    $("#msgs").append("<li>" + msg + "</li>");
-  });
+socket.on("update", function(msg) {
+  $("#msgs").append("<li>" + msg + "</li>");
+});
 
-  socket.on("update-people", function(data){
-    //var peopleOnline = [];
-    $("#people").empty();
-    $("#users").empty();
-    $('#people').append("<li class=\"list-group-item active\">People online <span class=\"badge\">"+data.count+"</span></li>");
-    var type = data.type;
-    var name = data.user;
-    $.each(data.people, function(a, obj) {
-      if(obj.type === type ){
-        if (!("country" in obj)) {
-          html = "";
-        } else {
-          html = "<img class=\"flag flag-"+obj.country+"\"/>";
-        }
-        $('#people').append("<li class=\"list-group-item\"><span>" + obj.name + "</span> <i class=\"fa fa-"+obj.device+"\"></i> " + html + " <a href=\"#\" class=\"whisper btn btn-xs\">private msg</a></li>");
-        //if(curUser != name){
-          $('#users').append("<option value="+obj.name+"><span>" + obj.name + "</span></option>");  
-       // }
-          
+socket.on("update-people", function(data){
+  //var peopleOnline = [];
+  $("#people").empty();
+  $("#users").empty();
+  $('#people').append("<li class=\"list-group-item active\">People online <span class=\"badge\">"+data.count+"</span></li>");
+  var type = data.type;
+  var name = data.user;
+  $.each(data.people, function(a, obj) {
+    if(obj.type === type ){
+      if (!("country" in obj)) {
+        html = "";
+      } else {
+        html = "<img class=\"flag flag-"+obj.country+"\"/>";
       }
-      //peopleOnline.push(obj.name);
-    });
-
-    /*var whisper = $("#whisper").prop('checked');
-    if (whisper) {
-      $("#msg").typeahead({
-          local: peopleOnline
-      }).each(function() {
-         if ($(this).hasClass('input-lg'))
-              $(this).prev('.tt-hint').addClass('hint-lg');
-      });
-    }*/
-  });
-
-  
-  
-
-  socket.on("chat", function(msTime, person, msg, file) {
-    if(file==0){
-      $("#msgs").append("<li><strong><span class='text-success'>" + timeFormat(msTime) + person.name + "</span></strong>: " + msg + "</li>");
-    }else{
-      $("#msgs").append("<li><strong><span class='text-success'>" + timeFormat(msTime) + person.name + "</span></strong>: <a href='#' class=\"getfiles\" onclick=' socket.emit('getFile','"+msg+"');'>"+msg+"</a></li>");
-    }
     
-    //clear typing field
-     $("#"+person.name+"").remove();
-     clearTimeout(timeout);
-     timeout = setTimeout(timeoutFunction, 0);
-  });
+      $('#people').append("<li class=\"list-group-item\"><span>" + obj.name+'('+obj.device+')' + "</span> <i class=\"fa fa-"+obj.device+"\"></i> " + html + "</li>");
+      
 
-
-  socket.on("whisper", function(msTime, person, msg) {
-    if (person.name === "You") {
-      s = "private messaeged"
-    } else {
-      s = "private messaeged"
-    }
-    $("#msgs").append("<li><strong><span class='text-muted'>" + timeFormat(msTime) + person.name + "</span></strong> "+s+": " + msg + "</li>");
-  });
-
-  socket.on("roomList", function(data) {
-    $("#rooms").text("");
-    $("#rooms").append("<li class=\"list-group-item active\">List of rooms <span class=\"badge\">"+data.count+"</span></li>");
-     if (!jQuery.isEmptyObject(data.rooms)) { 
-      var type = data.type; 
-      console.log("chat :"+ type);
-      $.each(data.rooms, function(id, room) {
-        if(room.chat == type){
-          console.log("roomchat :"+ curUser);
-          console.log("invitee :"+ room.invited);
-          var html ="";
-          if(room.invited == curUser ){
-             var html = "<button id="+id+" class='joinRoomBtn btn btn-default btn-xs' >Join</button>";
-          }
-          $('#rooms').append("<li id="+id+" class=\"list-group-item\"><span>" + room.name + "</span> " + html + "</li>");
-        }
+      
+      //if(curUser != name){
+        $('#users').append("<option value="+obj.name+"><span>" + obj.name + "</span></option>");  
+     // }
         
-      });
-    } else {
-      $("#rooms").append("<li class=\"list-group-item\">There are no rooms yet.</li>");
     }
+    //peopleOnline.push(obj.name);
   });
 
-  socket.on("sendRoomID", function(data) {
-    myRoomID = data.id;
-  });
-  socket.on("sendUser", function(data) {
-    curUser = data.user;
-  });
+  /*var whisper = $("#whisper").prop('checked');
+  if (whisper) {
+    $("#msg").typeahead({
+        local: peopleOnline
+    }).each(function() {
+       if ($(this).hasClass('input-lg'))
+            $(this).prev('.tt-hint').addClass('hint-lg');
+    });
+  }*/
+});
+0
+socket.on("chat", function(msTime, person, msg, file) {
+  if(file==0){
+    $("#msgs").append("<li><strong><span class='text-success'>" + timeFormat(msTime) + person.name + "</span></strong>: " + msg + "</li>");
+  }else{
+    $("#msgs").append("<li><strong><span class='text-success'>" + timeFormat(msTime) + person.name + "</span></strong>: <a href='#' class=\"getfiles\" onclick=' socket.emit('getFile','"+msg+"');'>"+msg+"</a></li>");
+  }
+  
+  //clear typing field
+   $("#"+person.name+"").remove();
+   clearTimeout(timeout);
+   timeout = setTimeout(timeoutFunction, 0);
+});
 
-  socket.on("disconnect", function(){
-    $("#msgs").append("<li><strong><span class='text-warning'>The server is not available</span></strong></li>");
-    $("#msg").attr("disabled", "disabled");
-    $("#send").attr("disabled", "disabled");
-  });
+
+socket.on("whisper", function(msTime, person, msg) {
+  if (person.name === "You") {
+    s = "private messaeged"
+  } else {
+    s = "private messaeged"
+  }
+  $("#msgs").append("<li><strong><span class='text-muted'>" + timeFormat(msTime) + person.name + "</span></strong> "+s+": " + msg + "</li>");
+});
+
+socket.on("roomList", function(data) {
+  $("#rooms").text("");
+  $("#rooms").append("<li class=\"list-group-item active\">List of rooms <span class=\"badge\">"+data.count+"</span></li>");
+   if (!jQuery.isEmptyObject(data.rooms)) { 
+    var type = data.type; 
+    console.log("chat :"+ type);
+    $.each(data.rooms, function(id, room) {
+      if(room.chat == type){
+        console.log("roomchat :"+ curUser);
+        console.log("invitee :"+ room.invited);
+        var html ="";
+        if(room.invited == curUser ){
+           var html = "$<h5>PAID</h5>";
+        }
+        $('#rooms').append("<li id="+id+" class=\"list-group-item\"><span>" + room.name + "</span> " + html + "</li>");
+      }
+      
+    });
+  } else {
+    $("#rooms").append("<li class=\"list-group-item\">There are no rooms yet.</li>");
+  }
+});
+
+socket.on("sendRoomID", function(data) {
+  myRoomID = data.id;
+});
+socket.on("sendUser", function(data) {
+  curUser = data.user;
+});
+
+socket.on("disconnect", function(){
+  $("#msgs").append("<li><strong><span class='text-warning'>The server is not available</span></strong></li>");
+  $("#msg").attr("disabled", "disabled");
+  $("#send").attr("disabled", "disabled");
+});
 
 });
