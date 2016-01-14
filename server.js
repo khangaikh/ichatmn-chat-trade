@@ -408,22 +408,23 @@ io.sockets.on("connection", function (socket) {
 		chat_id = query.id;
 		var fileName;
 
-		db.all("SELECT * FROM tickets WHERE public_key=?", chat_id, function(err, rows) {  
+		/*db.all("SELECT * FROM tickets WHERE public_key=?", chat_id, function(err, rows) {  
         
         if(rows.length==0){
         	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
         }else{
 	        	rows.forEach(function (row) { 
 	        		fileName =  row.secret_name; 
+	        		console.log(fileName);
 			    })  
 			}
-        });
+        });*/
 		console.log(fileName);
-		var pathToFile= '/home/khangai/Desktop/ichatmn-chat/'+fileName;
+		var pathToFile= '/home/khangai/Desktop/ichatmn-chat/';
 		delivery.on('delivery.connect',function(delivery){
 	 
 		    delivery.send({
-		      name: 'sample-image.jpg',
+		      name: 'background.jpg',
 		      path : pathToFile
 		    });
 		 

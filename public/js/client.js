@@ -359,7 +359,7 @@ $(document).ready(function() {
     
     var delivery = new Delivery(socket);
     socket.emit("checkPassword", filePassword, url);
-    
+    alert(1);
     delivery.on('receive.start',function(fileUID){
       console.log('receiving a file!');
     });
