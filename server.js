@@ -9,6 +9,8 @@ var express = require('express')
 , Room = require('./room.js')
 , _ = require('underscore')._;
 
+
+
 var multer  = require('multer');
 var done=false;
 
@@ -387,20 +389,49 @@ io.sockets.on("connection", function (socket) {
         fn({people: people});
     });
 
-    socket.on("getFile", function(filename) {
-    	console.log('hele');
-    	delivery.send({
-		    name: filename,
-		    path : './'+filename
-		});
-		 
-	    delivery.on('send.success',function(file){
-	    	console.log('File successfully sent to client!');
-	    });
-    });
 
-    socket.on("checkPassword", function(filename, url) {
+    socket.on('checkPassword', function(filename, url){
+	  	console.log("File download begin");
+	  	var urlp = require('url');
+		var url_parts = urlp.parse(url, true);
+		var query = url_parts.query;
+		chat_id = query.id;
+		var fileName;
+
+	  	var delivery = dl.listen(socket);
+	  	var sqlite3 = require('sqlite3').verbose();
+		var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+
+	  	db.all("SELECT * FROM tickets WHERE public_key=?", chat_id, function(err, rows) {  
+        
+        if(rows.length==0){
+        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+        }else{
+	        	rows.forEach(function (row) { 
+	        		fileName =  row.secret_name; 
+	        		console.log(fileName);
+	        		var pathToFile = '/home/khangai/Desktop/ichatmn-chat/'+fileName;
+				  	delivery.on('delivery.connect',function(delivery){
+
+					    delivery.send({
+					      name: fileName,
+					      path : pathToFile
+					    });
+
+				    	delivery.on('send.success',function(file){
+				      		console.log('File successfully sent to client!');
+				    	});
+			  		});
+				  	socket.emit("getFile1",{foo:"bar"});
+			    })  
+			}
+        });
+	  	
+	});
+
+    socket.on("checkPassword1", function(filename, url) {
     	
+    	console.log("File download start");
     	console.log('Current url :' + url);
 		var urlp = require('url');
 		var url_parts = urlp.parse(url, true);
@@ -408,7 +439,7 @@ io.sockets.on("connection", function (socket) {
 		chat_id = query.id;
 		var fileName;
 
-		/*db.all("SELECT * FROM tickets WHERE public_key=?", chat_id, function(err, rows) {  
+		db.all("SELECT * FROM tickets WHERE public_key=?", chat_id, function(err, rows) {  
         
         if(rows.length==0){
         	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
@@ -418,21 +449,10 @@ io.sockets.on("connection", function (socket) {
 	        		console.log(fileName);
 			    })  
 			}
-        });*/
-		console.log(fileName);
-		var pathToFile= '/home/khangai/Desktop/ichatmn-chat/';
-		delivery.on('delivery.connect',function(delivery){
-	 
-		    delivery.send({
-		      name: 'background.jpg',
-		      path : pathToFile
-		    });
-		 
-		    delivery.on('send.success',function(file){
-		      console.log('File successfully sent to client!');
-		    });
- 
-  		});
+        });
+		console.log("File sending");
+		var pathToFile= 'localhost:3000/background.jpg';
+		socket.emit("getFileDownload",pathToFile);
     });
 
 	socket.on("countryUpdate", function(data) { //we know which country the user is from

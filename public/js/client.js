@@ -128,6 +128,8 @@ $(document).ready(function() {
       $("#msg").val("file:"+fileUID.name);
     });
 
+  
+
   });
   socket.on('moving', function (data) {
 
@@ -165,7 +167,7 @@ $(document).ready(function() {
   });
 
   doc.bind('mouseup mouseleave',function(){
-    drawing = false;
+      drawing = false;
   });
 
   var lastEmit = $.now();
@@ -356,21 +358,30 @@ $(document).ready(function() {
   });
 
   $("#requestFile").click(function() {
-    
-    var delivery = new Delivery(socket);
-    socket.emit("checkPassword", filePassword, url);
-    alert(1);
-    delivery.on('receive.start',function(fileUID){
-      console.log('receiving a file!');
-    });
- 
-    delivery.on('receive.success',function(file){
-      if (file.isImage()) {
-        $('img').attr('src', file.dataURL());
-      };
-    });
+    alert(2);
+    var url = window.location.href;
+    socket.emit("checkPassword", 1,url);
+    alert(3);
     
   });
+
+  socket.on("getFile1", function(data) {
+    var delivery = new Delivery(socket);
+
+    delivery.on('receive.start',function(fileUID){
+        console.log('receiving a file!');
+    });
+   
+    delivery.on('receive.success',function(file){
+        var params = file.params;
+        if (file.isImage()) {
+          $('img').attr('src', file.dataURL());
+        };
+    });
+    console.log("File downloaded");
+    
+  });
+
 
   $("#rooms").on('click', '.joinRoomBtn', function() {
     var roomName = $(this).siblings("span").text();
