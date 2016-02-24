@@ -13,7 +13,7 @@ var multer  = require('multer');
 var done=false;
 
 app.configure(function() {
-	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 5001);
+	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 5000);
   	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP || "159.203.105.181");
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
