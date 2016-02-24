@@ -125,7 +125,7 @@ $(document).ready(function() {
     });
 
   //setup "global" variables first
-  var socket = io.connect("159.203.105.181:5000");
+  var socket = io.connect("159.203.105.181:80");
   var myRoomID = null;
   var curUser = null;
   $("#private_actions").hide();
