@@ -288,7 +288,7 @@ io.sockets.on("connection", function (socket) {
 			        		if(interest=='Buyer'){
 			        			console.log("Buyer checking in");
 			        			if(row.buyer_key==name ){
-			        				console.log("Here");
+			        				console.log("Here1");
 			        				console.log(similar(row.secret_draw_buyer,str));
 			        				if(similar(row.secret_draw_buyer,str)>90){
 			        					console.log("Buyer checking passed");
@@ -308,7 +308,17 @@ io.sockets.on("connection", function (socket) {
 			        		}else{
 			        			console.log("Seller checking in");
 			        			if(row.seller_key==name){
-			        				console.log("Seller checking passed");
+			        				console.log("Here2");
+			        				console.log(similar(row.secret_draw_buyer,str));
+			        				if(similar(row.secret_draw_seller,str)>90){
+			        					console.log("Seller checking passed");
+			        				}else{
+			        					console.log("Buyer checking failed");
+			        					console.log("KDS closed");
+			        					socket.emit("exists", {msg: "Draw password is expired or wrong.", proposedName: "Wrong pass"});
+			        					authentication = false;
+			        				}
+			        				
 			        			}else{
 			        				console.log("Seller checking failed");
 			        				console.log("KDS closed");
