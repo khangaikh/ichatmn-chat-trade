@@ -15,8 +15,8 @@ var multer  = require('multer');
 var done=false;
 
 app.configure(function() {
-	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 3001);
-  	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1");
+	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 8081);
+  	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP || "159.203.105.181");
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(express.static(__dirname + '/public'));
@@ -172,64 +172,19 @@ function purge(s, action, chat_id) {
 		}		
 	}
 }
-function similar_text(first, second, percent) {
-  //  discuss at: http://phpjs.org/functions/similar_text/
-  // original by: Rafał Kukawski (http://blog.kukawski.pl)
-  // bugfixed by: Chris McMacken
-  // bugfixed by: Jarkko Rantavuori original by findings in stackoverflow (http://stackoverflow.com/questions/14136349/how-does-similar-text-work)
-  // improved by: Markus Padourek (taken from http://www.kevinhq.com/2012/06/php-similartext-function-in-javascript_16.html)
-  //   example 1: similar_text('Hello World!', 'Hello phpjs!');
-  //   returns 1: 7
-  //   example 2: similar_text('Hello World!', null);
-  //   returns 2: 0
-
-  if (first === null || second === null || typeof first === 'undefined' || typeof second === 'undefined') {
-    return 0;
-  }
-
-  first += '';
-  second += '';
-
-  var pos1 = 0,
-    pos2 = 0,
-    max = 0,
-    firstLength = first.length,
-    secondLength = second.length,
-    p, q, l, sum;
-
-  max = 0;
-
-  for (p = 0; p < firstLength; p++) {
-    for (q = 0; q < secondLength; q++) {
-      for (l = 0;
-        (p + l < firstLength) && (q + l < secondLength) && (first.charAt(p + l) === second.charAt(q + l)); l++)
-      ;
-      if (l > max) {
-        max = l;
-        pos1 = p;
-        pos2 = q;
-      }
+function similar(a,b) {
+    var lengthA = a.length;
+    var lengthB = b.length;
+    var equivalency = 0;
+    var minLength = (a.length > b.length) ? b.length : a.length;    
+    var maxLength = (a.length < b.length) ? b.length : a.length;    
+    for(var i = 0; i < minLength; i++) {
+        if(a[i] == b[i]) {
+            equivalency++;
+        }
     }
-  }
-
-  sum = max;
-
-  if (sum) {
-    if (pos1 && pos2) {
-      sum += this.similar_text(first.substr(0, pos1), second.substr(0, pos2));
-    }
-
-    if ((pos1 + max < firstLength) && (pos2 + max < secondLength)) {
-      sum += this.similar_text(first.substr(pos1 + max, firstLength - pos1 - max), second.substr(pos2 + max,
-        secondLength - pos2 - max));
-    }
-  }
-
-  if (!percent) {
-    return sum;
-  } else {
-    return (sum * 200) / (firstLength + secondLength);
-  }
+    var weight = equivalency / maxLength;
+    return parseInt(weight * 100);
 }
 io.sockets.on("connection", function (socket) {
 
@@ -291,8 +246,6 @@ io.sockets.on("connection", function (socket) {
 
 	socket.on("joinserver", function(name, device, url, interest, str) {
 		
-
-
 		var exists = false;
 		var authentication = true;
 		var ownerRoomID = inRoomID = null;
@@ -336,10 +289,10 @@ io.sockets.on("connection", function (socket) {
 			        	rows.forEach(function (row) { 
 			        		if(interest=='Buyer'){
 			        			console.log("Buyer checking in");
-			        			console.log(similar_text(row.secret_draw_buyer,str, 70));
 			        			if(row.buyer_key==name ){
-			        				console.log(similar_text(row.secret_draw_buyer,str, 70));
-			        				if(similar_text(row.secret_draw_buyer,str, 70)>0){
+			        				console.log("Here");
+			        				console.log(similar(row.secret_draw_buyer,str));
+			        				if(similar(row.secret_draw_buyer,str)>90){
 			        					console.log("Buyer checking passed");
 			        				}else{
 			        					console.log("Buyer checking failed");
@@ -372,9 +325,10 @@ io.sockets.on("connection", function (socket) {
 	        }
 	        else {
 	        	console.log("Failed to connect to KDS...");
-	            console.log("error: " + error)
-	            console.log("response.statusCode: " + response.statusCode)
-	            console.log("response.statusText: " + response.statusText)
+	            console.log("error: " + error);
+	            console.log("response.statusCode: " + response.statusCode);
+	            console.log("response.statusText: " + response.statusText);
+	            authentication = false;
 	     	}
 		});
 
