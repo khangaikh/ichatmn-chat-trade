@@ -172,7 +172,65 @@ function purge(s, action, chat_id) {
 		}		
 	}
 }
+function similar_text(first, second, percent) {
+  //  discuss at: http://phpjs.org/functions/similar_text/
+  // original by: Rafał Kukawski (http://blog.kukawski.pl)
+  // bugfixed by: Chris McMacken
+  // bugfixed by: Jarkko Rantavuori original by findings in stackoverflow (http://stackoverflow.com/questions/14136349/how-does-similar-text-work)
+  // improved by: Markus Padourek (taken from http://www.kevinhq.com/2012/06/php-similartext-function-in-javascript_16.html)
+  //   example 1: similar_text('Hello World!', 'Hello phpjs!');
+  //   returns 1: 7
+  //   example 2: similar_text('Hello World!', null);
+  //   returns 2: 0
 
+  if (first === null || second === null || typeof first === 'undefined' || typeof second === 'undefined') {
+    return 0;
+  }
+
+  first += '';
+  second += '';
+
+  var pos1 = 0,
+    pos2 = 0,
+    max = 0,
+    firstLength = first.length,
+    secondLength = second.length,
+    p, q, l, sum;
+
+  max = 0;
+
+  for (p = 0; p < firstLength; p++) {
+    for (q = 0; q < secondLength; q++) {
+      for (l = 0;
+        (p + l < firstLength) && (q + l < secondLength) && (first.charAt(p + l) === second.charAt(q + l)); l++)
+      ;
+      if (l > max) {
+        max = l;
+        pos1 = p;
+        pos2 = q;
+      }
+    }
+  }
+
+  sum = max;
+
+  if (sum) {
+    if (pos1 && pos2) {
+      sum += this.similar_text(first.substr(0, pos1), second.substr(0, pos2));
+    }
+
+    if ((pos1 + max < firstLength) && (pos2 + max < secondLength)) {
+      sum += this.similar_text(first.substr(pos1 + max, firstLength - pos1 - max), second.substr(pos2 + max,
+        secondLength - pos2 - max));
+    }
+  }
+
+  if (!percent) {
+    return sum;
+  } else {
+    return (sum * 200) / (firstLength + secondLength);
+  }
+}
 io.sockets.on("connection", function (socket) {
 
 	var chat_id = 0;
@@ -231,8 +289,10 @@ io.sockets.on("connection", function (socket) {
 		socket.broadcast.emit('moving', data);
 	});
 
-	socket.on("joinserver", function(name, device, url, interest) {
+	socket.on("joinserver", function(name, device, url, interest, str) {
 		
+
+
 		var exists = false;
 		var authentication = true;
 		var ownerRoomID = inRoomID = null;
@@ -255,7 +315,7 @@ io.sockets.on("connection", function (socket) {
 		console.log("Connecting to KDS...");
    	 	var request = require("request");
    	 	request({
-		    url: 'http://localhost/key_distribution/request_for_trade_login.php',
+		    url: 'http://104.236.241.227/key_distribution/request_for_trade_login.php',
 		    method: "POST",
 		    json: true,
 		    headers: {
@@ -264,19 +324,30 @@ io.sockets.on("connection", function (socket) {
 		    body: JSON.stringify(requestData)
 			},function (error, response, body) {
 	        if (!error) {
-	            console.log(body);
+	            //console.log(body);
 	            var sqlite3 = require('sqlite3').verbose();
 				var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
 				db.all("SELECT * FROM tickets WHERE public_key=?",chat_id, function(err, rows) {  
 			        if(rows.length==0){
 			        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+			        	authentication = false;
 			        	return;
 			        }else{
 			        	rows.forEach(function (row) { 
 			        		if(interest=='Buyer'){
 			        			console.log("Buyer checking in");
-			        			if(row.buyer_key==name){
-			        				console.log("Buyer checking passed");
+			        			console.log(similar_text(row.secret_draw_buyer,str, 70));
+			        			if(row.buyer_key==name ){
+			        				console.log(similar_text(row.secret_draw_buyer,str, 70));
+			        				if(similar_text(row.secret_draw_buyer,str, 70)>0){
+			        					console.log("Buyer checking passed");
+			        				}else{
+			        					console.log("Buyer checking failed");
+			        					console.log("KDS closed");
+			        					socket.emit("exists", {msg: "Draw password is expired or wrong.", proposedName: "Wrong pass"});
+			        					authentication = false;
+			        				}
+
 			        			}else{
 			        				console.log("Buyer checking failed");
 			        				console.log("KDS closed");
@@ -295,7 +366,7 @@ io.sockets.on("connection", function (socket) {
 			        			}
 			        		}
 			        		  
-					    })  
+					    });  
 					}
 			    });
 	        }

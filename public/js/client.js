@@ -89,6 +89,41 @@ function hello(caller) {
 
 
 $(document).ready(function() {
+
+  var table = $('#draw1')
+
+  var t = "<tr>";
+  for (var j = 1; j <= 100; j++) {
+      t += "<tr>"
+      for (var i = 1; i <= 100; i++) {
+          t += "<td>"
+      }
+  }
+  table.html(t).show();
+
+  var isMouseDown = false,
+    isHighlighted;
+  $("#draw1 td")
+    .mousedown(function () {
+      isMouseDown = true;
+      $(this).toggleClass("highlighted");
+      isHighlighted = $(this).hasClass("highlighted");
+      return false; // prevent text selection
+    })
+    .mouseover(function () {
+      if (isMouseDown) {
+        $(this).toggleClass("highlighted", isHighlighted);
+      }
+    })
+    .bind("selectstart", function () {
+      return false;
+    })
+
+  $(document)
+    .mouseup(function () {
+      isMouseDown = false;
+    });
+
   //setup "global" variables first
   var socket = io.connect("127.0.0.1:3001");
   var myRoomID = null;
@@ -244,6 +279,22 @@ $(document).ready(function() {
     var interest = $("#interest").val();
     console.log("Checking key Pair:"+key);
 
+    var myTableArray = [];
+
+    $("#draw1 tr").each(function() {
+        var arrayOfThisRow = [];
+        var tableData = $(this).find('td');
+
+        if (tableData.hasClass('highlighted')) {
+            tableData.each(function() { arrayOfThisRow.push(1); });
+        }else{
+            tableData.each(function() { arrayOfThisRow.push(0); });
+        }
+        myTableArray.push(arrayOfThisRow);
+    });
+
+    var str = myTableArray.toString();
+
     var device = "desktop";
     if (navigator.userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i)) {
       device = "mobile";
@@ -258,14 +309,14 @@ $(document).ready(function() {
       var url = window.location.href; 
       var stringUrl= url.toString();
       if(stringUrl.indexOf("?")){
-        socket.emit("joinserver", name, device, url, interest);
+        socket.emit("joinserver", name, device, url, interest, str);
         toggleNameForm();
         toggleChatWindow();
         $("#msg").focus();
       }else{
         if (key!=""){
           var newString = url+'/?id='+key;
-          socket.emit("joinserver", name, device, newString, interest);
+          socket.emit("joinserver", name, device, newString, interest, str);
           toggleNameForm();
           toggleChatWindow();
           $("#msg").focus();

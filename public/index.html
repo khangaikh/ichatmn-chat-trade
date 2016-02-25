@@ -6,6 +6,36 @@
   <link rel="stylesheet" href="components/font-awesome/css/font-awesome.css">
   <link rel="stylesheet" href="css/flags.css">
   <link rel="stylesheet" href="css/app.css">
+  <style>
+      table {
+          display: none;
+      }
+      td {
+          border:1px dotted #ccc;
+          padding:1px;
+          width:5px;
+          height:5px;
+      }
+      .show-row {
+          display: table-row;
+      }
+      .show-row-cell {
+          display: table-cell;
+      }
+      .border {
+          border:1px solid red;
+      }
+      td:hover {
+          background-color: red;          
+      }
+
+      td:hover + td {
+          color: red;   
+      }
+      table td.highlighted {
+        background-color:black;
+      }
+  </style>
 </head>
 <body>
   <div class="main col-md-6">
@@ -13,7 +43,10 @@
     <div id="login-screen">
       <p class="lead">Welcome to iChat.mn Trading room </p>
       Draw your secret key
-        <canvas id="paper" width="650px" height="600px">
+        <table id="draw1" background="http://www.travelchinaguide.com/images/map/china/china-map-9.jpg" style="margin-left:140px">
+
+        </table>
+        <canvas id="paper" width="650px" height="600px" style="display:none">
             Your browser needs to support canvas for this to work!
         </canvas>
         <br>
@@ -22,7 +55,7 @@
           <option value="Buyer">Buyer</option>
           <option value="Seller">Seller</option>
         </select>
-        <br>s
+        <br>
         User ID:
         <input type="text" class="form-control input-lg"  placeholder="Please type your passwod" id="locationpass">
         <br>
