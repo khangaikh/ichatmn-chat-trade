@@ -290,7 +290,7 @@ io.sockets.on("connection", function (socket) {
 			        			if(row.buyer_key==name ){
 			        				console.log("Here1");
 			        				console.log(similar(row.secret_draw_buyer,str));
-			        				if(similar(row.secret_draw_buyer,str)>90){
+			        				if(similar(row.secret_draw_buyer,str)>80){
 			        					console.log("Buyer checking passed");
 			        				}else{
 			        					console.log("Buyer checking failed");
@@ -310,7 +310,7 @@ io.sockets.on("connection", function (socket) {
 			        			if(row.seller_key==name){
 			        				console.log("Here2");
 			        				console.log(similar(row.secret_draw_buyer,str));
-			        				if(similar(row.secret_draw_seller,str)>90){
+			        				if(similar(row.secret_draw_seller,str)>80){
 			        					console.log("Seller checking passed");
 			        				}else{
 			        					console.log("Buyer checking failed");
