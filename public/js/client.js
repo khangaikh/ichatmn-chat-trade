@@ -275,7 +275,7 @@ $(document).ready(function() {
   //enter screen
   $("#login_trade").click(function() {
     var name = $("#locationpass").val();
-    var key = $("#public_key").val();
+    //var key = $("#public_key").val();
     var interest = $("#interest").val();
     console.log("Checking key Pair:"+key);
 
@@ -300,7 +300,7 @@ $(document).ready(function() {
       device = "mobile";
     }
 
-    if (name === "" || name.length < 2 || key =="" || key.length <2 ){
+    if (name === "" || name.length < 2){
       $("#errors").empty();
       $("#errors").append("Please enter a correct password an key pair");
       $("#errors").show();
