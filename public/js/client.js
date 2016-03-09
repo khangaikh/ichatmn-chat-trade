@@ -276,10 +276,8 @@ $(document).ready(function() {
   $("#login_trade").click(function() {
 
     var name = $("#locationpass").val();
-    //var key = $("#public_key").val();
     var interest = $("#interest").val();
   
-
     var myTableArray = [];
 
     $("#draw1 tr").each(function() {
