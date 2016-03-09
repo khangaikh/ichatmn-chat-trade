@@ -274,6 +274,7 @@ $(document).ready(function() {
 
   //enter screen
   $("#login_trade").click(function() {
+
     var name = $("#locationpass").val();
     //var key = $("#public_key").val();
     var interest = $("#interest").val();
@@ -308,23 +309,11 @@ $(document).ready(function() {
 
       var url = window.location.href; 
       var stringUrl= url.toString();
-      if(stringUrl.indexOf("?")){
-        socket.emit("joinserver", name, device, url, interest, str);
-        toggleNameForm();
-        toggleChatWindow();
-        $("#msg").focus();
-      }else{
-        if (key!=""){
-          var newString = url+'/?id='+key;
-          socket.emit("joinserver", name, device, newString, interest, str);
-          toggleNameForm();
-          toggleChatWindow();
-          $("#msg").focus();
-        }else{
-          alert("Please input your public in the box or URL?key");
-          return;
-        } 
-      }
+      socket.emit("joinserver", name, device, url, interest, str);
+      toggleNameForm();
+      toggleChatWindow();
+      $("#msg").focus();
+     
     }
   });
 
