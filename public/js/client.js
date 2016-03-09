@@ -278,7 +278,7 @@ $(document).ready(function() {
     var name = $("#locationpass").val();
     //var key = $("#public_key").val();
     var interest = $("#interest").val();
-    console.log("Checking key Pair:"+key);
+  
 
     var myTableArray = [];
 
