@@ -443,7 +443,7 @@ io.sockets.on("connection", function (socket) {
 	        	rows.forEach(function (row) { 
 	        		fileName =  row.secret_name; 
 	        		console.log(fileName);
-	        		var pathToFile = '/home/khangai/Desktop/ichatmn-chat/'+fileName;
+	        		var pathToFile = '/root/ichatmn-chat/'+fileName;
 				  	delivery.on('delivery.connect',function(delivery){
 
 					    delivery.send({
