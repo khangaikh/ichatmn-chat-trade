@@ -14,7 +14,7 @@ var done=false;
 
 app.configure(function() {
 	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 8081);
-  	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP || "159.203.105.18");
+  	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1");
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(express.static(__dirname + '/public'));
@@ -266,7 +266,7 @@ io.sockets.on("connection", function (socket) {
 		console.log("Connecting to KDS...");
    	 	var request = require("request");
    	 	request({
-		    url: 'http://104.236.241.227/key_distribution/request_for_trade_login.php',
+		    url: 'http://192.168.0.83/key_distribution/request_for_trade_login.php',
 		    method: "POST",
 		    json: true,
 		    headers: {
@@ -342,6 +342,62 @@ io.sockets.on("connection", function (socket) {
 
 		if (!authentication) {
 			socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+
+			var sqlite3 = require('sqlite3').verbose();
+				var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+				db.all("SELECT * FROM tickets WHERE public_key=?",chat_id, function(err, rows) {  
+			        if(rows.length==0){
+			        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+			        	authentication = false;
+			        	return;
+			        }else{
+			        	rows.forEach(function (row) { 
+			        		if(interest=='Buyer'){
+			        			console.log("Buyer attempt");
+			        			if(row.buyer_attemp>0 ){
+			        				
+			        				var attemp = row.buyer_attemp+1;
+			        				db.run("UPDATE tickets SET buyer_attempt =? WHERE public_key=?", {
+							          1: attemp,
+							          2: chat_id
+							      	});
+							      	db.close();
+
+			        			}else{
+			        				console.log("Buyer already used 3 attemts failed");
+			        				console.log("KDS closed");
+			        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Attempt finished"});
+			        				authentication = false;
+			        			}
+			        		}else{
+			        			console.log("Seller attempt");
+			        			if(row.seller_attemp>0){
+			        				
+			        				var attemp = row.seller_attemp+1;
+			        				db.run("UPDATE tickets SET seller_attempt =? WHERE public_key=?", {
+							          1: attemp,
+							          2: chat_id
+							      	});
+							      	db.close();
+			        			}else{
+			        				console.log("Seller used 3 attemts failed");
+			        				console.log("KDS closed");
+			        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Attempt finished"});
+			        				authentication = false;
+			        			}
+			        		}
+			        		  
+					    });  
+					}
+			    })
+
+
+			return;
+		}
+
+		sizePeople = _.size(people);
+		if(sizePeople>2){
+			socket.emit("exists", {msg: "Trade room is only avialable for two users", proposedName: "Two user already logged in"});
 			return;
 		}
 
@@ -411,7 +467,9 @@ io.sockets.on("connection", function (socket) {
 			}
 		}
 
-		sizePeople = _.size(people);
+
+
+		
 		sizeRooms = _.size(rooms);
 		io.sockets.emit("update-people", {people: people, count: sizePeople, type: chat_id, user: people[socket.id].name });
 		socket.emit("roomList", {rooms: rooms, count: sizeRooms, type: chat_id});

@@ -4,7 +4,7 @@ function Room(name, id, owner, chat) {
   this.owner = owner;
   this.invited = "0";
   this.people = [];
-  this.peopleLimit = 10;
+  this.peopleLimit = 2;
   this.status = "available";
   this.private = false;
   this.chat = chat;
