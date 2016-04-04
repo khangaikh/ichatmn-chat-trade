@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="components/font-awesome/css/font-awesome.css">
   <link rel="stylesheet" href="css/flags.css">
   <link rel="stylesheet" href="css/app.css">
+  <link href="css/patternLock.css"  rel="stylesheet" type="text/css" />
+
   <style>
       table {
           display: none;
@@ -42,10 +44,13 @@
     <div class="alert alert-danger" id="errors"></div>
     <div id="login-screen">
       <p class="lead">Welcome to iChat.mn Trading room </p>
-      Draw your secret key
-        <table id="draw1" background="http://www.travelchinaguide.com/images/map/china/china-map-9.jpg" style="margin-left:140px">
+        Draw your secret key
+        <div id="patternHolder" class="pattern-holder patt-holder" background="http://www.travelchinaguide.com/images/map/china/china-map-9.jpg">
+        </div>
+        
+        <!--<table id="draw1" background="http://www.travelchinaguide.com/images/map/china/china-map-9.jpg" style="margin-left:140px; display:none">
 
-        </table>
+        </table>-->
         <canvas id="paper" width="650px" height="600px" style="display:none">
             Your browser needs to support canvas for this to work!
         </canvas>
@@ -150,6 +155,7 @@
   <script src="components/bootstrap/dist/js/bootstrap.js"></script>
   <script src="/socket.io/socket.io.js"></script>  
   <script src="js/client.js"></script>
+  <script src="js/patternLock.js"></script>
   <script src="js/delivery.js"></script>
 </body>
 </html>

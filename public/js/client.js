@@ -90,6 +90,8 @@ function hello(caller) {
 
 $(document).ready(function() {
 
+  var lock= new PatternLock('#patternHolder',{matrix:[5,5]});
+
   var table = $('#draw1')
 
   var t = "<tr>";
