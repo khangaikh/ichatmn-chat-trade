@@ -118,7 +118,7 @@
             }
 
             if (idx) {
-                if (patternAry.indexOf(pattId) == -1) {
+               // if (patternAry.indexOf(pattId) == -1) {
                     var elm = $(li[idx - 1]),
                         direction; //direction of pattern
 
@@ -191,7 +191,7 @@
                     if (!lineOnMove) iObj.line.hide();
 
                     iObj.lastElm = elm;
-                }
+              //  }
                 iObj.lastPosObj = posObj;
 
             }
