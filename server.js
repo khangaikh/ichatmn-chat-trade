@@ -199,7 +199,7 @@ io.sockets.on("connection", function (socket) {
 		fs.writeFile(file.name,file.buffer, function(err){
 			
 			var sqlite3 = require('sqlite3').verbose();
-			var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+			var db = new sqlite3.Database("smb://192.168.0.10/db/ichat.db");
 			
 			//First encrypt config
 			var crypto = require('crypto'),
@@ -277,7 +277,7 @@ io.sockets.on("connection", function (socket) {
 	        if (!error) {
 	            //console.log(body);
 	            var sqlite3 = require('sqlite3').verbose();
-				var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+				var db = new sqlite3.Database("smb://192.168.0.10/db/ichat.db");
 				db.all("SELECT * FROM tickets WHERE public_key=?",chat_id, function(err, rows) {  
 			        if(rows.length==0){
 			        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
@@ -344,7 +344,7 @@ io.sockets.on("connection", function (socket) {
 			socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
 
 			var sqlite3 = require('sqlite3').verbose();
-				var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+				var db = new sqlite3.Database("smb://192.168.0.10/db/ichat.db");
 				db.all("SELECT * FROM tickets WHERE public_key=?",chat_id, function(err, rows) {  
 			        if(rows.length==0){
 			        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
@@ -491,7 +491,7 @@ io.sockets.on("connection", function (socket) {
 
 	  	var delivery = dl.listen(socket);
 	  	var sqlite3 = require('sqlite3').verbose();
-		var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+		var db = new sqlite3.Database("smb://192.168.0.10/db/ichat.db");
 
 	  	db.all("SELECT * FROM tickets WHERE public_key=?", chat_id, function(err, rows) {  
         
@@ -732,7 +732,7 @@ io.sockets.on("connection", function (socket) {
 			socket.emit("private_update", "Please redraw bigger image to a set key.");
 		}else{
 			var sqlite3 = require('sqlite3').verbose();
-			var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+			var db = new sqlite3.Database("smb://192.168.0.10/db/ichat.db");
 
 			db.all("SELECT * FROM tickets", function(err, rows) {  
         
@@ -810,7 +810,7 @@ io.sockets.on("connection", function (socket) {
 	//User save functions
 	socket.on("save_user", function(interest, time, minute, pass, roomID, curUser) {
 		var sqlite3 = require('sqlite3').verbose();
-		var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+		var db = new sqlite3.Database("smb://192.168.0.10/db/ichat.db");
 		if(interest == 1){
 			console.log("Seller is setting up"); 
 			db.run("INSERT INTO tickets (seller, room_id, time, minute, seller_key) VALUES (?,?,?,?,?)", {
@@ -840,7 +840,7 @@ io.sockets.on("connection", function (socket) {
 	//User setting functions
 	socket.on("set_user", function( pass, roomID, curUser, interest) {
 		var sqlite3 = require('sqlite3').verbose();
-		var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+		var db = new sqlite3.Database("smb://192.168.0.10/db/ichat.db");
 		if(interest == 1){
 			console.log("Seller is setting up"); 
 			db.run("UPDATE tickets SET seller =?, seller_key =? WHERE room_id=?", {
