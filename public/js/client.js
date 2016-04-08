@@ -92,40 +92,7 @@ $(document).ready(function() {
 
   var lock= new PatternLock('#patternHolder',{matrix:[5,5]});
 
-  var table = $('#draw1')
-
-  var t = "<tr>";
-  for (var j = 1; j <= 100; j++) {
-      t += "<tr>"
-      for (var i = 1; i <= 100; i++) {
-          t += "<td>"
-      }
-  }
-  table.html(t).show();
-
-  var isMouseDown = false,
-    isHighlighted;
-  $("#draw1 td")
-    .mousedown(function () {
-      isMouseDown = true;
-      $(this).toggleClass("highlighted");
-      isHighlighted = $(this).hasClass("highlighted");
-      return false; // prevent text selection
-    })
-    .mouseover(function () {
-      if (isMouseDown) {
-        $(this).toggleClass("highlighted", isHighlighted);
-      }
-    })
-    .bind("selectstart", function () {
-      return false;
-    })
-
-  $(document)
-    .mouseup(function () {
-      isMouseDown = false;
-    });
-
+  
   //setup "global" variables first
   var socket = io.connect("127.0.0.1:8081");
   var myRoomID = null;
@@ -133,19 +100,6 @@ $(document).ready(function() {
   $("#private_actions").hide();
   $("#uploadForm").hide();
 
-  var doc = $(document),
-    win = $(window),
-    canvas = $('#paper'),
-    ctx = canvas[0].getContext('2d'),
-    instructions = $('#instructions');
-  // Generate an unique ID
-  var id = Math.round($.now()*Math.random());
-
-  // A flag for drawing activity
-  var drawing = false;
-
-  var clients = {};
-  var cursors = {};
 
   socket.on('connect', function(){
 
@@ -164,96 +118,8 @@ $(document).ready(function() {
       $('#uploadFile').modal('toggle');
       $("#msg").val("file:"+fileUID.name);
     });
-
-  
-
   });
-  socket.on('moving', function (data) {
-
-    if(! (data.id in clients)){
-      // a new user has come online. create a cursor for them
-      cursors[data.id] = $('<div class="cursor">').appendTo('#cursors');
-    }
-    // Move the mouse pointer
-    cursors[data.id].css({
-      'left' : data.x,
-      'top' : data.y
-    });
-
-    // Is the user drawing?
-    if(data.drawing && clients[data.id]){
-      // Draw a line on the canvas. clients[data.id] holds
-      // the previous position of this user's mouse pointer
-      drawLine(clients[data.id].x, clients[data.id].y, data.x, data.y);
-    }
-    // Saving the current client state
-    clients[data.id] = data;
-    clients[data.id].updated = $.now();
-  });
-
-  var prev = {};
-
-  canvas.on('mousedown',function(e){
-
-    drawing = true;
-    prev.x = e.pageX;
-    prev.y = e.pageY;
-
-    // Hide the instructions
-    instructions.fadeOut();
-  });
-
-  doc.bind('mouseup mouseleave',function(){
-      drawing = false;
-  });
-
-  var lastEmit = $.now();
-
-  doc.on('mousemove',function(e){
-    if($.now() - lastEmit > 30){
-      socket.emit('mousemove',{
-        'x': e.pageX,
-        'y': e.pageY,
-        'drawing': drawing,
-        'id': id
-      });
-      lastEmit = $.now();
-    }
-
-    // Draw a line for the current user's movement, as it is
-    // not received in the socket.on('moving') event above
-
-    if(drawing){
-
-      drawLine(prev.x, prev.y, e.pageX, e.pageY);
-
-      prev.x = e.pageX;
-      prev.y = e.pageY;
-    }
-  });
-
-  // Remove inactive clients after 10 seconds of inactivity
-  setInterval(function(){
-
-    for(ident in clients){
-      if($.now() - clients[ident].updated > 10000){
-
-        // Last update was more than 10 seconds ago.
-        // This user has probably closed the page
-
-        cursors[ident].remove();
-        delete clients[ident];
-        delete cursors[ident];
-      }
-    }
-
-  },10000);
-
-  function drawLine(fromx, fromy, tox, toy){
-    ctx.moveTo(fromx, fromy);
-    ctx.lineTo(tox, toy);
-    ctx.stroke();
-  }
+ 
 
   $("form").submit(function(event) {
     event.preventDefault();
@@ -395,6 +261,22 @@ $(document).ready(function() {
           }
         }
     });
+  });
+
+  $("#createRoomBtn").click(function() {
+      var a1 = $("#ans1").val();
+      var a2 = $("#ans2").val();
+      var a3 = $("#ans3").val();
+      var interest = $("#interest").val();
+
+      if(a1=="" || a2=="" || a3==""){
+        alert("Please fill your answers");
+        e.preventDefault();
+        return;
+    }else{
+      socket.emit("check-question", intereset, a1, a2, a3, roomID);
+      
+    }
   });
 
   $("#requestFile").click(function() {
