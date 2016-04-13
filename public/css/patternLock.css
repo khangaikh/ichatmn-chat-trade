@@ -7,7 +7,6 @@
 
 .patt-holder{
 	-ms-touch-action: none;
-	    margin-left: 150px;
 }
 .patt-wrap{position:relative; cursor:pointer;}
 .patt-wrap ul, .patt-wrap li{
@@ -44,7 +43,7 @@
 .patt-lines{
 	border-radius:5px;
 	height:10px;
-	background:rgba(255,255,255,.7);
+	background:red;
 	position:absolute;
 	transform-origin:5px 5px;
 	-ms-transform-origin:5px 5px; /* IE 9 */
@@ -54,3 +53,29 @@
 .patt-hidden .patt-lines{
 	display:none;
 }
+.patt-circ{
+	position: relative;
+
+}
+.patt-dots{
+	z-index:1;
+}
+.patt-circ::before{
+	content:'';
+	position: absolute;
+	left:50%;
+	top:-50%;
+	background:#ccc;
+	width:1px;
+	height:200%;
+}
+.patt-circ::after{
+	content:'';
+	position: absolute;
+	top:50%;
+	left:-50%;
+	background:#ccc;
+	height:1px;
+	width:200%;
+}
+

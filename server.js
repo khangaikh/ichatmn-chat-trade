@@ -242,6 +242,103 @@ io.sockets.on("connection", function (socket) {
 		socket.broadcast.emit('moving', data);
 	});
 
+	socket.on("check-question", function(interest, a1, a2, a3, url) {
+		
+		
+		console.log('Current url :' + url);
+		var urlp = require('url');
+		var url_parts = urlp.parse(url, true);
+		var query = url_parts.query;
+		chat_id = query.id;
+		console.log(chat_id);
+		var auth = true;
+
+		var sqlite3 = require('sqlite3').verbose();
+				var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
+
+		db.all("SELECT * FROM tickets WHERE public_key=?", chat_id, function(err, rows) {  
+        
+        if(rows.length==0){
+        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Ticket is expired"});
+        }else{
+        		var auth = true;
+        		console.log("Loop");
+	        	rows.forEach(function (row) { 
+	        		if(interest==2){
+	        			//buyer
+	        			if(row.buyer_ans_1 != a1){
+	        				auth =false;
+	        				console.log("ba1");
+	        			}
+	        			if(row.buyer_ans_2 != a2){
+	        				auth =false;
+	        				console.log("ba2");
+	        			}
+	        			if(row.buyer_ans_3 != a3){
+	        				auth =false;
+	        				console.log("ba3");
+	        			}
+
+	        			if(row.buyer_attempt>0 ){		
+	        				var attemp = row.buyer_attempt+1;
+	        				db.run("UPDATE tickets SET buyer_attempt =? WHERE public_key=?", {
+					          1: attemp,
+					          2: chat_id
+					      	});
+					      	db.close();
+
+	        			}else{
+	        				console.log("Buyer already used 3 attemts failed");
+	        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Attempt finished"});
+	        				auth = false;
+
+	        			}
+	        			if(auth){
+	        				console.log(row.secret_draw_buyer);
+				        	socket.emit("next", {image: row.secret_draw_buyer, proposedName: "Success"});
+				        }else{
+				        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+				        }
+
+	        		}
+	        		else{
+	        			//seller
+	        			if(row.seller_ans_1 != a1){
+	        				auth =false;
+	        			}
+	        			if(row.seller_ans_2 != a2){
+	        				auth =false;
+	        			}
+	        			if(row.seller_ans_3 != a3){
+	        				auth =false;
+	        			}
+
+	        			if(row.seller_attempt>0 ){		
+	        				var attemp = row.seller_attempt+1;
+	        				db.run("UPDATE tickets SET seller_attempt =? WHERE public_key=?", {
+					          1: attemp,
+					          2: chat_id
+					      	});
+					      	db.close();
+
+	        			}else{
+	        				console.log("Seller already used 3 attemts failed");
+	        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Attempt finished"});
+	        				auth = false;
+	        			}
+	        			if(auth){
+				        	socket.emit("next", {image: row.secret_draw_seller});
+				        }else{
+				        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+				        }
+	        		}
+			    })  
+			}
+        });
+
+	});
+
+
 	socket.on("joinserver", function(name, device, url, interest, str) {
 		
 		var exists = false;

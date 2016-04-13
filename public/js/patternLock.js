@@ -41,7 +41,7 @@
             radius = option.radius,
             html = ['<ul class="patt-wrap" style="padding:' + margin + 'px">'];
         for (var i = 0, ln = matrix[0] * matrix[1]; i < ln; i++) {
-            html.push('<li class="patt-circ" style="margin:' + margin + 'px; width : ' + (radius * 2) + 'px; height : ' + (radius * 2) + 'px; -webkit-border-radius: ' + radius + 'px; -moz-border-radius: ' + radius + 'px; border-radius: ' + radius + 'px; "><div class="patt-dots"></div></li>');
+            html.push('<li class="patt-circ" style="margin:' + margin + 'px; width : ' + (radius * 2) + 'px; height : ' + (radius * 2) + 'px;"><div class="patt-dots"></div></li>');
         }
         html.push('</ul>');
         holder.html(html.join('')).css({
@@ -83,6 +83,7 @@
             $(this).on(touchMove + '.pattern-move', function (e) {
                 moveHandler.call(this, e, obj);
             });
+
             $(document).one(touchEnd, function () {
                 endHandler.call(this, e, obj);
             });
@@ -93,7 +94,7 @@
             iObj.wrapLeft = offset.left;
 
             //reset pattern
-            obj.reset();
+            obj.resetPointer();
 
         },
         moveHandler = function (e, obj) {
@@ -212,8 +213,6 @@
 
             //to remove last line
             iObj.line.remove();
-
-
 
             if (iObj.rightPattern) {
                 if (pattern == iObj.rightPattern) {
@@ -393,6 +392,13 @@
             iObj.rightPattern = pattern;
             iObj.onSuccess = success || nullFunc;
             iObj.onError = error || nullFunc;
+        },
+        resetPointer : function(){
+            var iObj = objectHolder[this.token];
+
+            iObj.patternAry = iObj.patternAry || [];
+            //remove last Obj
+            iObj.lastPosObj = null;
         }
     };
 

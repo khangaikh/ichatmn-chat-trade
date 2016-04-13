@@ -235,9 +235,27 @@ $(document).ready(function() {
     }
   });
 
+  $("#login_question").click(function(e) {
+    var ans1 = $("#ans1").val();
+    var ans2 = $("#ans2").val();
+    var ans3 = $("#ans3").val();
+    var interest = $("#interest").val();
+
+    if(ans1 =="" || ans2 =="" || ans3==""){
+      alert("Please answer all the questions");
+       e.preventDefault();
+      return;
+    }
+    var url = window.location.href; 
+    var stringUrl= url.toString();
+    socket.emit("check-question", interest, ans1, ans2, ans3, url);
+
+  });
+
   $("#showCreateRoom").click(function() {
     $("#createRoomForm").toggle();
   });
+
   $("#showCreateRoom").click(function() {
     $("#createRoomForm").toggle();
   });
@@ -274,7 +292,7 @@ $(document).ready(function() {
         e.preventDefault();
         return;
     }else{
-      socket.emit("check-question", intereset, a1, a2, a3, roomID);
+      
       
     }
   });
@@ -339,107 +357,118 @@ $(document).ready(function() {
     }
   });
 
-//socket-y stuff
-socket.on("exists", function(data) {
-  $("#errors").empty();
-  $("#errors").show();
-  $("#errors").append(data.msg + " <strong>" + data.proposedName + "</strong>");
-    toggleNameForm();
-    toggleChatWindow();
-});
-
-socket.on("joined", function() {
-  $("#errors").hide();
-  if (navigator.geolocation) { //get lat lon of user
-    navigator.geolocation.getCurrentPosition(positionSuccess, positionError, { enableHighAccuracy: true });
-  } else {
+  //socket-y stuff
+  socket.on("exists", function(data) {
+    $("#errors").empty();
     $("#errors").show();
-    $("#errors").append("Your browser is ancient and it doesn't support GeoLocation.");
-  }
-  function positionError(e) {
-    console.log(e);
-  }
+    $("#errors").append(data.msg + " <strong>" + data.proposedName + "</strong>");
+      toggleNameForm();
+      toggleChatWindow();
+  });
+  
+  socket.on("next", function(image) {
+    console.log(image);
+    $("#interest").hide();
+    $("#questions").hide();
+    $("#login_question").hide();
+    $("#secret-draw").show();
+    $("#patternHolder").css('background', 'url(' + image.image + ')');  
+    $("#patternHolder").css('background-size', 'contain');  
 
-  function positionSuccess(position) {
-    var lat = position.coords.latitude;
-    var lon = position.coords.longitude;
-    //consult the yahoo service
-    $.ajax({
-      type: "GET",
-      url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20geo.placefinder%20where%20text%3D%22"+lat+"%2C"+lon+"%22%20and%20gflags%3D%22R%22&format=json",
-      dataType: "json",
-       success: function(data) {
-        socket.emit("countryUpdate", {country: data.query.results.Result.countrycode});
-      }
-    });
-  }
-});
-
-socket.on("history", function(data) {
-  if (data.length !== 0) {
-    $("#msgs").append("<li><strong><span class='text-warning'>Last 10 messages:</li>");
-    $.each(data, function(data, msg) {
-      $("#msgs").append("<li><span class='text-warning'>" + msg + "</span></li>");
-    });
-  } else {
-    $("#msgs").append("<li><strong><span class='text-warning'>No past messages in this room.</li>");
-  }
-});
-
-socket.on("update", function(msg) {
-  $("#msgs").append("<li>" + msg + "</li>");
-});
-
-socket.on("update-people", function(data){
-  //var peopleOnline = [];
-  $("#people").empty();
-  $("#users").empty();
-  $('#people').append("<li class=\"list-group-item active\">People online <span class=\"badge\">"+data.count+"</span></li>");
-  var type = data.type;
-  var name = data.user;
-  $.each(data.people, function(a, obj) {
-    if(obj.type === type ){
-      if (!("country" in obj)) {
-        html = "";
-      } else {
-        html = "<img class=\"flag flag-"+obj.country+"\"/>";
-      }
-    
-      $('#people').append("<li class=\"list-group-item\"><span>" + obj.name+'('+obj.device+')' + "</span> <i class=\"fa fa-"+obj.device+"\"></i> " + html + "</li>");
-      
-
-      
-      //if(curUser != name){
-        $('#users').append("<option value="+obj.name+"><span>" + obj.name + "</span></option>");  
-     // }
-        
-    }
-    //peopleOnline.push(obj.name);
   });
 
-  /*var whisper = $("#whisper").prop('checked');
-  if (whisper) {
-    $("#msg").typeahead({
-        local: peopleOnline
-    }).each(function() {
-       if ($(this).hasClass('input-lg'))
-            $(this).prev('.tt-hint').addClass('hint-lg');
+  socket.on("joined", function() {
+    $("#errors").hide();
+    if (navigator.geolocation) { //get lat lon of user
+      navigator.geolocation.getCurrentPosition(positionSuccess, positionError, { enableHighAccuracy: true });
+    } else {
+      $("#errors").show();
+      $("#errors").append("Your browser is ancient and it doesn't support GeoLocation.");
+    }
+    function positionError(e) {
+      console.log(e);
+    }
+
+    function positionSuccess(position) {
+      var lat = position.coords.latitude;
+      var lon = position.coords.longitude;
+      //consult the yahoo service
+      $.ajax({
+        type: "GET",
+        url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20geo.placefinder%20where%20text%3D%22"+lat+"%2C"+lon+"%22%20and%20gflags%3D%22R%22&format=json",
+        dataType: "json",
+         success: function(data) {
+          socket.emit("countryUpdate", {country: data.query.results.Result.countrycode});
+        }
+      });
+    }
+  });
+
+  socket.on("history", function(data) {
+    if (data.length !== 0) {
+      $("#msgs").append("<li><strong><span class='text-warning'>Last 10 messages:</li>");
+      $.each(data, function(data, msg) {
+        $("#msgs").append("<li><span class='text-warning'>" + msg + "</span></li>");
+      });
+    } else {
+      $("#msgs").append("<li><strong><span class='text-warning'>No past messages in this room.</li>");
+    }
+  });
+
+  socket.on("update", function(msg) {
+    $("#msgs").append("<li>" + msg + "</li>");
+  });
+
+  socket.on("update-people", function(data){
+    //var peopleOnline = [];
+    $("#people").empty();
+    $("#users").empty();
+    $('#people').append("<li class=\"list-group-item active\">People online <span class=\"badge\">"+data.count+"</span></li>");
+    var type = data.type;
+    var name = data.user;
+    $.each(data.people, function(a, obj) {
+      if(obj.type === type ){
+        if (!("country" in obj)) {
+          html = "";
+        } else {
+          html = "<img class=\"flag flag-"+obj.country+"\"/>";
+        }
+      
+        $('#people').append("<li class=\"list-group-item\"><span>" + obj.name+'('+obj.device+')' + "</span> <i class=\"fa fa-"+obj.device+"\"></i> " + html + "</li>");
+        
+
+        
+        //if(curUser != name){
+          $('#users').append("<option value="+obj.name+"><span>" + obj.name + "</span></option>");  
+       // }
+          
+      }
+      //peopleOnline.push(obj.name);
     });
-  }*/
-});
-0
-socket.on("chat", function(msTime, person, msg, file) {
-  if(file==0){
-    $("#msgs").append("<li><strong><span class='text-success'>" + timeFormat(msTime) + person.name + "</span></strong>: " + msg + "</li>");
-  }else{
-    $("#msgs").append("<li><strong><span class='text-success'>" + timeFormat(msTime) + person.name + "</span></strong>: <a href='#' class=\"getfiles\" onclick=' socket.emit('getFile','"+msg+"');'>"+msg+"</a></li>");
-  }
-  
-  //clear typing field
-   $("#"+person.name+"").remove();
-   clearTimeout(timeout);
-   timeout = setTimeout(timeoutFunction, 0);
-});
+
+    /*var whisper = $("#whisper").prop('checked');
+    if (whisper) {
+      $("#msg").typeahead({
+          local: peopleOnline
+      }).each(function() {
+         if ($(this).hasClass('input-lg'))
+              $(this).prev('.tt-hint').addClass('hint-lg');
+      });
+    }*/
+  });
+  0
+  socket.on("chat", function(msTime, person, msg, file) {
+    if(file==0){
+      $("#msgs").append("<li><strong><span class='text-success'>" + timeFormat(msTime) + person.name + "</span></strong>: " + msg + "</li>");
+    }else{
+      $("#msgs").append("<li><strong><span class='text-success'>" + timeFormat(msTime) + person.name + "</span></strong>: <a href='#' class=\"getfiles\" onclick=' socket.emit('getFile','"+msg+"');'>"+msg+"</a></li>");
+    }
+    
+    //clear typing field
+     $("#"+person.name+"").remove();
+     clearTimeout(timeout);
+     timeout = setTimeout(timeoutFunction, 0);
+  });
 
 
 socket.on("whisper", function(msTime, person, msg) {
