@@ -382,8 +382,10 @@ io.sockets.on("connection", function (socket) {
 			        			console.log("Buyer checking in");
 			        			//if(row.buyer_key==name ){
 			        				console.log("Here1");
-			        				console.log(similar(row.secret_draw_buyer,pass));
-			        				if(similar(row.secret_draw_buyer,pass)>90){
+			        				console.log(row.secret_draw_buyer);
+			        				console.log(pass);
+
+			        				if(row.secret_draw_buyer==pass){
 			        					console.log("Buyer checking passed");
 			        				}else{
 			        					console.log("Buyer checking failed");
