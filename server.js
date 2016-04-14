@@ -380,7 +380,7 @@ io.sockets.on("connection", function (socket) {
 			        	rows.forEach(function (row) { 
 			        		if(interest==2){
 			        			console.log("Buyer checking in");
-			        			if(row.buyer_key==name ){
+			        			//if(row.buyer_key==name ){
 			        				console.log("Here1");
 			        				console.log(similar(row.secret_draw_buyer,pass));
 			        				if(similar(row.secret_draw_buyer,pass)>90){
@@ -392,15 +392,15 @@ io.sockets.on("connection", function (socket) {
 			        					authentication = false;
 			        				}
 
-			        			}else{
+			        			//}else{
 			        				console.log("Buyer checking failed");
 			        				console.log("KDS closed");
 			        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
 			        				authentication = false;
-			        			}
+			        			//}
 			        		}else{
 			        			console.log("Seller checking in");
-			        			if(row.seller_key==name){
+			        			//if(row.seller_key==name){
 			        				console.log("Here2");
 			        				console.log(similar(row.secret_draw_buyer,pass));
 			        				if(similar(row.secret_draw_seller,pass)>90){
@@ -412,12 +412,12 @@ io.sockets.on("connection", function (socket) {
 			        					authentication = false;
 			        				}
 			        				
-			        			}else{
+			        			//}else{
 			        				console.log("Seller checking failed");
 			        				console.log("KDS closed");
 			        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
 			        				authentication = false;
-			        			}
+			        			//}
 			        		}
 			        		  
 					    });  
