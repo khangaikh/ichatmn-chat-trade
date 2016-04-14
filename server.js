@@ -252,7 +252,7 @@ io.sockets.on("connection", function (socket) {
 		var auth = true;
 
 		var sqlite3 = require('sqlite3').verbose();
-				var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
+				var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
 
 		db.all("SELECT * FROM tickets WHERE public_key=?", chat_id, function(err, rows) {  
         
