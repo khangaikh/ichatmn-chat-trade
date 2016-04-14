@@ -184,6 +184,7 @@ function similar(a,b) {
     var weight = equivalency / maxLength;
     return parseInt(weight * 100);
 }
+
 io.sockets.on("connection", function (socket) {
 
 	var chat_id = 0;
@@ -235,15 +236,12 @@ io.sockets.on("connection", function (socket) {
 		});
 	});
 	
-	
-	
 	// Start listening for mouse move events
 	socket.on('mousemove', function (data) {
 		socket.broadcast.emit('moving', data);
 	});
 
 	socket.on("check-question", function(interest, a1, a2, a3, url) {
-		
 		
 		console.log('Current url :' + url);
 		var urlp = require('url');
@@ -280,7 +278,7 @@ io.sockets.on("connection", function (socket) {
 	        			}
 
 	        			if(row.buyer_attempt>0 ){		
-	        				var attemp = row.buyer_attempt+1;
+	        				var attemp = row.buyer_attempt-1;
 	        				db.run("UPDATE tickets SET buyer_attempt =? WHERE public_key=?", {
 					          1: attemp,
 					          2: chat_id
@@ -314,7 +312,7 @@ io.sockets.on("connection", function (socket) {
 	        			}
 
 	        			if(row.seller_attempt>0 ){		
-	        				var attemp = row.seller_attempt+1;
+	        				var attemp = row.seller_attempt-1;
 	        				db.run("UPDATE tickets SET seller_attempt =? WHERE public_key=?", {
 					          1: attemp,
 					          2: chat_id
@@ -335,11 +333,9 @@ io.sockets.on("connection", function (socket) {
 			    })  
 			}
         });
-
 	});
 
-
-	socket.on("joinserver", function(name, device, url, interest, str) {
+	socket.on("joinserver", function(device, url, interest, pass) {
 		
 		var exists = false;
 		var authentication = true;
@@ -386,8 +382,8 @@ io.sockets.on("connection", function (socket) {
 			        			console.log("Buyer checking in");
 			        			if(row.buyer_key==name ){
 			        				console.log("Here1");
-			        				console.log(similar(row.secret_draw_buyer,str));
-			        				if(similar(row.secret_draw_buyer,str)>70){
+			        				console.log(similar(row.secret_draw_buyer,pass));
+			        				if(similar(row.secret_draw_buyer,pass)>90){
 			        					console.log("Buyer checking passed");
 			        				}else{
 			        					console.log("Buyer checking failed");
@@ -406,8 +402,8 @@ io.sockets.on("connection", function (socket) {
 			        			console.log("Seller checking in");
 			        			if(row.seller_key==name){
 			        				console.log("Here2");
-			        				console.log(similar(row.secret_draw_buyer,str));
-			        				if(similar(row.secret_draw_seller,str)>70){
+			        				console.log(similar(row.secret_draw_buyer,pass));
+			        				if(similar(row.secret_draw_seller,pass)>90){
 			        					console.log("Seller checking passed");
 			        				}else{
 			        					console.log("Buyer checking failed");
@@ -453,9 +449,9 @@ io.sockets.on("connection", function (socket) {
 			        			console.log("Buyer attempt");
 			        			if(row.buyer_attemp>0 ){
 			        				
-			        				var attemp = row.buyer_attemp+1;
+			        				var attempt = row.buyer_attempt-1;
 			        				db.run("UPDATE tickets SET buyer_attempt =? WHERE public_key=?", {
-							          1: attemp,
+							          1: attempt,
 							          2: chat_id
 							      	});
 							      	db.close();
@@ -470,9 +466,9 @@ io.sockets.on("connection", function (socket) {
 			        			console.log("Seller attempt");
 			        			if(row.seller_attemp>0){
 			        				
-			        				var attemp = row.seller_attemp+1;
+			        				var attempt = row.seller_attempt-1;
 			        				db.run("UPDATE tickets SET seller_attempt =? WHERE public_key=?", {
-							          1: attemp,
+							          1: attempt,
 							          2: chat_id
 							      	});
 							      	db.close();
@@ -487,8 +483,6 @@ io.sockets.on("connection", function (socket) {
 					    });  
 					}
 			    })
-
-
 			return;
 		}
 
@@ -528,6 +522,9 @@ io.sockets.on("connection", function (socket) {
 			chatHistory[socket.room] = [];
 		}
 		
+		var name = "Buyer";
+		if(interest==1)
+			name="Seller";
 
 		
 		people[socket.id] = {"name" : name, "owns" : ownerRoomID, "inroom": inRoomID, "device": interest, "type": chat_id};
@@ -563,9 +560,6 @@ io.sockets.on("connection", function (socket) {
 				}
 			}
 		}
-
-
-
 		
 		sizeRooms = _.size(rooms);
 		io.sockets.emit("update-people", {people: people, count: sizePeople, type: chat_id, user: people[socket.id].name });
@@ -574,7 +568,7 @@ io.sockets.on("connection", function (socket) {
 	});
 
 	socket.on("getOnlinePeople", function(fn) {
-        fn({people: people});
+    	fn({people: people});
     });
 
 
@@ -614,7 +608,6 @@ io.sockets.on("connection", function (socket) {
 			    })  
 			}
         });
-	  	
 	});
 
     socket.on("checkPassword1", function(filename, url) {
@@ -931,7 +924,6 @@ io.sockets.on("connection", function (socket) {
 	      	db.close();
 	      	socket.emit("update_private_msg", "Notify to>Seller");
 		}
-	
 	});
 
 	//User setting functions
@@ -970,8 +962,8 @@ io.sockets.on("connection", function (socket) {
 	});
 
 	socket.on("removeRoom", function(id) {
-		 var room = rooms[id];
-		 if (socket.id === room.owner) {
+		var room = rooms[id];
+		if (socket.id === room.owner) {
 			purge(socket, "removeRoom",chat_id);
 		} else {
             socket.emit("update", "Only the owner can remove a room.");

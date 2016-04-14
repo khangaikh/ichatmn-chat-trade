@@ -143,31 +143,15 @@ $(document).ready(function() {
   //enter screen
   $("#login_trade").click(function() {
 
-    var name = $("#locationpass").val();
     var interest = $("#interest").val();
-  
-    var myTableArray = [];
-
-    $("#draw1 tr").each(function() {
-        var arrayOfThisRow = [];
-        var tableData = $(this).find('td');
-
-        if (tableData.hasClass('highlighted')) {
-            tableData.each(function() { arrayOfThisRow.push(1); });
-        }else{
-            tableData.each(function() { arrayOfThisRow.push(0); });
-        }
-        myTableArray.push(arrayOfThisRow);
-    });
-
-    var str = myTableArray.toString();
+    var pass = lock.getPattern(); 
 
     var device = "desktop";
     if (navigator.userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i)) {
       device = "mobile";
     }
 
-    if (name === "" || name.length < 2){
+    if (pass === "" || name.length < 2){
       $("#errors").empty();
       $("#errors").append("Please enter a correct password an key pair");
       $("#errors").show();
@@ -175,7 +159,7 @@ $(document).ready(function() {
 
       var url = window.location.href; 
       var stringUrl= url.toString();
-      socket.emit("joinserver", name, device, url, interest, str);
+      socket.emit("joinserver", device, url, interest, pass);
       toggleNameForm();
       toggleChatWindow();
       $("#msg").focus();
@@ -372,6 +356,7 @@ $(document).ready(function() {
     $("#questions").hide();
     $("#login_question").hide();
     $("#secret-draw").show();
+    $("#login_trade").show();
     $("#patternHolder").css('background', 'url(' + image.image + ')');  
     $("#patternHolder").css('background-size', 'contain');  
 
