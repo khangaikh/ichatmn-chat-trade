@@ -404,8 +404,9 @@ io.sockets.on("connection", function (socket) {
 			        			console.log("Seller checking in");
 			        			//if(row.seller_key==name){
 			        				console.log("Here2");
-			        				console.log(similar(row.secret_draw_buyer,pass));
-			        				if(similar(row.secret_draw_seller,pass)>90){
+			        				console.log(row.secret_draw_seller);
+			        				console.log(pass);
+			        				if(row.secret_draw_seller==pass){
 			        					console.log("Seller checking passed");
 			        				}else{
 			        					console.log("Buyer checking failed");
