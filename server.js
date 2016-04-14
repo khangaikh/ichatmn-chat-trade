@@ -378,7 +378,7 @@ io.sockets.on("connection", function (socket) {
 			        	return;
 			        }else{
 			        	rows.forEach(function (row) { 
-			        		if(interest=='Buyer'){
+			        		if(interest==2){
 			        			console.log("Buyer checking in");
 			        			if(row.buyer_key==name ){
 			        				console.log("Here1");
