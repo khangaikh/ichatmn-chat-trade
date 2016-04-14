@@ -373,9 +373,9 @@ io.sockets.on("connection", function (socket) {
 				var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
 				db.all("SELECT * FROM tickets WHERE public_key=?",chat_id, function(err, rows) {  
 			        if(rows.length==0){
-			        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-			        	authentication = false;
-			        	return;
+			        	//socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+			        	//authentication = false;
+			        	//return;
 			        }else{
 			        	rows.forEach(function (row) { 
 			        		if(interest==2){
@@ -383,9 +383,10 @@ io.sockets.on("connection", function (socket) {
 			        			//if(row.buyer_key==name ){
 			        				console.log("Here1");
 			        				console.log(row.buyer_key);
-			        				console.log(pass);
+								console.log(pass);
+								console.log(similar(row.buyer_key,pass));
 
-			        				if(row.buyer_key==pass){
+			        				if(similar(row.buyer_key,pass)>90){
 			        					console.log("Buyer checking passed");
 			        				}else{
 			        					console.log("Buyer checking failed");
@@ -406,7 +407,7 @@ io.sockets.on("connection", function (socket) {
 			        				console.log("Here2");
 			        				console.log(row.seller_key);
 			        				console.log(pass);
-			        				if(row.seller_key==pass){
+			        				if(similar(row.seller_key,pass)>90){
 			        					console.log("Seller checking passed");
 			        				}else{
 			        					console.log("Seller checking failed");
@@ -435,6 +436,7 @@ io.sockets.on("connection", function (socket) {
 	            authentication = false;
 	     	}
 		});
+		console.log("Here3");
 		console.log(authentication);
 		if (!authentication) {
 			
