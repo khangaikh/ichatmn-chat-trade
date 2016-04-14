@@ -145,13 +145,13 @@ $(document).ready(function() {
 
     var interest = $("#interest").val();
     var pass = lock.getPattern(); 
-
+    console.log(pass);
     var device = "desktop";
     if (navigator.userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i)) {
       device = "mobile";
     }
 
-    if (pass === "" || name.length < 2){
+    if (pass === "" || pass.length < 2){
       $("#errors").empty();
       $("#errors").append("Please enter a correct password an key pair");
       $("#errors").show();
