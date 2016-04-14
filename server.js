@@ -359,7 +359,7 @@ io.sockets.on("connection", function (socket) {
 		console.log("Connecting to KDS...");
    	 	var request = require("request");
    	 	request({
-		    url: 'http://192.168.0.9/key_distribution/request_for_trade_login.php',
+		    url: 'http://localhost/key_distribution/request_for_trade_login.php',
 		    method: "POST",
 		    json: true,
 		    headers: {
@@ -382,36 +382,36 @@ io.sockets.on("connection", function (socket) {
 			        			console.log("Buyer checking in");
 			        			//if(row.buyer_key==name ){
 			        				console.log("Here1");
-			        				console.log(row.secret_draw_buyer);
+			        				console.log(row.buyer_key);
 			        				console.log(pass);
 
-			        				if(row.secret_draw_buyer==pass){
+			        				if(row.buyer_key==pass){
 			        					console.log("Buyer checking passed");
 			        				}else{
 			        					console.log("Buyer checking failed");
 			        					console.log("KDS closed");
-			        					socket.emit("exists", {msg: "Draw password is expired or wrong.", proposedName: "Wrong pass"});
+			        					//socket.emit("exists", {msg: "Draw password is expired or wrong.", proposedName: "Wrong pass"});
 			        					authentication = false;
 			        				}
 
 			        			//}else{
-			        				console.log("Buyer checking failed");
-			        				console.log("KDS closed");
-			        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-			        				authentication = false;
+			        				//console.log("Buyer checking failed");
+			        				//console.log("KDS closed");
+			        				//socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+			        				//authentication = false;
 			        			//}
 			        		}else{
 			        			console.log("Seller checking in");
 			        			//if(row.seller_key==name){
 			        				console.log("Here2");
-			        				console.log(row.secret_draw_seller);
+			        				console.log(row.seller_key);
 			        				console.log(pass);
-			        				if(row.secret_draw_seller==pass){
+			        				if(row.seller_key==pass){
 			        					console.log("Seller checking passed");
 			        				}else{
 			        					console.log("Seller checking failed");
 			        					console.log("KDS closed");
-			        					socket.emit("exists", {msg: "Draw password is expired or wrong.", proposedName: "Wrong pass"});
+			        					//socket.emit("exists", {msg: "Draw password is expired or wrong.", proposedName: "Wrong pass"});
 			        					authentication = false;
 			        				}
 			        				
@@ -435,22 +435,19 @@ io.sockets.on("connection", function (socket) {
 	            authentication = false;
 	     	}
 		});
-
+		console.log(authentication);
 		if (!authentication) {
-			socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-
+			
 			var sqlite3 = require('sqlite3').verbose();
 				var db = new sqlite3.Database("smb://192.168.0.10/db/ichat.db");
 				db.all("SELECT * FROM tickets WHERE public_key=?",chat_id, function(err, rows) {  
 			        if(rows.length==0){
-			        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-			        	authentication = false;
 			        	return;
 			        }else{
 			        	rows.forEach(function (row) { 
-			        		if(interest=='Buyer'){
+			        		if(interest==2){
 			        			console.log("Buyer attempt");
-			        			if(row.buyer_attemp>0 ){
+			        			if(row.buyer_attempt>0 ){
 			        				
 			        				var attempt = row.buyer_attempt-1;
 			        				db.run("UPDATE tickets SET buyer_attempt =? WHERE public_key=?", {
@@ -462,12 +459,10 @@ io.sockets.on("connection", function (socket) {
 			        			}else{
 			        				console.log("Buyer already used 3 attemts failed");
 			        				console.log("KDS closed");
-			        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Attempt finished"});
-			        				authentication = false;
 			        			}
 			        		}else{
 			        			console.log("Seller attempt");
-			        			if(row.seller_attemp>0){
+			        			if(row.seller_attempt>0){
 			        				
 			        				var attempt = row.seller_attempt-1;
 			        				db.run("UPDATE tickets SET seller_attempt =? WHERE public_key=?", {
@@ -478,14 +473,14 @@ io.sockets.on("connection", function (socket) {
 			        			}else{
 			        				console.log("Seller used 3 attemts failed");
 			        				console.log("KDS closed");
-			        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Attempt finished"});
-			        				authentication = false;
+			        				
 			        			}
 			        		}
 			        		  
 					    });  
 					}
 			    })
+			socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
 			return;
 		}
 

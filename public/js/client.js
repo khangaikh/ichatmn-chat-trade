@@ -346,8 +346,8 @@ $(document).ready(function() {
     $("#errors").empty();
     $("#errors").show();
     $("#errors").append(data.msg + " <strong>" + data.proposedName + "</strong>");
-      toggleNameForm();
-      toggleChatWindow();
+     // toggleNameForm();
+     // toggleChatWindow();
   });
   
   socket.on("next", function(image) {
