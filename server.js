@@ -370,7 +370,7 @@ io.sockets.on("connection", function (socket) {
 	        if (!error) {
 	            //console.log(body);
 	            var sqlite3 = require('sqlite3').verbose();
-				var db = new sqlite3.Database("smb://192.168.0.10/db/ichat.db");
+				var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
 				db.all("SELECT * FROM tickets WHERE public_key=?",chat_id, function(err, rows) {  
 			        if(rows.length==0){
 			        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
