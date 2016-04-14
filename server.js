@@ -409,17 +409,17 @@ io.sockets.on("connection", function (socket) {
 			        				if(row.secret_draw_seller==pass){
 			        					console.log("Seller checking passed");
 			        				}else{
-			        					console.log("Buyer checking failed");
+			        					console.log("Seller checking failed");
 			        					console.log("KDS closed");
 			        					socket.emit("exists", {msg: "Draw password is expired or wrong.", proposedName: "Wrong pass"});
 			        					authentication = false;
 			        				}
 			        				
 			        			//}else{
-			        				console.log("Seller checking failed");
-			        				console.log("KDS closed");
-			        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-			        				authentication = false;
+			        				//console.log("Seller checking failed");
+			        				//console.log("KDS closed");
+			        				//socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+			        				//authentication = false;
 			        			//}
 			        		}
 			        		  
