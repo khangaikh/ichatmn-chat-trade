@@ -359,7 +359,7 @@ io.sockets.on("connection", function (socket) {
 		console.log("Connecting to KDS...");
    	 	var request = require("request");
    	 	request({
-		    url: 'http://192.168.0.83/key_distribution/request_for_trade_login.php',
+		    url: 'http://192.168.0.9/key_distribution/request_for_trade_login.php',
 		    method: "POST",
 		    json: true,
 		    headers: {
