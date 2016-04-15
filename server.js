@@ -472,7 +472,6 @@ io.sockets.on("connection", function (socket) {
 										          1: attempt,
 										          2: chat_id
 										      	});
-										      	db.close();
 										      	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
 										      	return;
 
@@ -491,7 +490,6 @@ io.sockets.on("connection", function (socket) {
 										          1: attempt,
 										          2: chat_id
 										      	});
-										      	db.close();
 										      	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
 										      	return;
 						        			}else{
@@ -605,11 +603,14 @@ io.sockets.on("connection", function (socket) {
 										          1: attempt,
 										          2: chat_id
 										      	});
-										      	db.close();
+										   		socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+												return;
 
 						        			}else{
 						        				console.log("Buyer already used 3 attemts failed");
 						        				console.log("KDS closed");
+						        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+												return;
 						        			}
 						        		}else{
 						        			console.log("Seller attempt");
@@ -620,17 +621,21 @@ io.sockets.on("connection", function (socket) {
 										          1: attempt,
 										          2: chat_id
 										      	});
-										      	db.close();
+												socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+												return;
 						        			}else{
 						        				console.log("Seller used 3 attemts failed");
 						        				console.log("KDS closed");
+						        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+												return;
 						        				
 						        			}
 						        		}
 						        		  
 								    });  
 								}
-						    })
+						    });
+							db.close();
 							socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
 							return;
         				}
