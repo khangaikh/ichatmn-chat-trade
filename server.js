@@ -279,7 +279,7 @@ io.sockets.on("connection", function (socket) {
 					          1: attemp,
 					          2: chat_id
 					      	});
-					      	db.close();
+
 
 	        			}else{
 	        				console.log("Buyer already used 3 attemts failed");
@@ -296,7 +296,6 @@ io.sockets.on("connection", function (socket) {
 				        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
 				        	return;
 				        }
-
 	        		}
 	        		else{
 	        			//seller
@@ -316,7 +315,6 @@ io.sockets.on("connection", function (socket) {
 					          1: attemp,
 					          2: chat_id
 					      	});
-					      	db.close();
 
 	        			}else{
 	        				console.log("Seller already used 3 attemts failed");
@@ -333,6 +331,7 @@ io.sockets.on("connection", function (socket) {
 	        		}
 			    })  
 			}
+			db.close();
         });
 	});
 
