@@ -320,6 +320,10 @@ $(document).ready(function() {
     $("#createRoom").show();
   }); 
 
+  $('#refresh').click(function() {
+    location.reload();
+  });
+
   $("#leave").click(function() {
     var roomID = myRoomID;
     socket.emit("leaveRoom", roomID);

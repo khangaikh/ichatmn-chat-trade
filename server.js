@@ -11,6 +11,8 @@ var express = require('express')
 
 var multer  = require('multer');
 var done=false;
+//var ip_address = '/Applications/XAMPP/htdocs/ichatmn-web/ichat.db';
+var ip_address = '/opt/lampp/htdocs/ichatmn-web/ichat.db';
 
 app.configure(function() {
 	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 8081);
@@ -192,7 +194,7 @@ io.sockets.on("connection", function (socket) {
 			
 			var sqlite3 = require('sqlite3').verbose();
 			//var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
-			var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+			var db = new sqlite3.Database(ip_address);
 			
 			//First encrypt config
 			var crypto = require('crypto'),
@@ -245,7 +247,7 @@ io.sockets.on("connection", function (socket) {
 
 		var sqlite3 = require('sqlite3').verbose();
 		//var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
-		var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+		var db = new sqlite3.Database(ip_address);
 
 		db.all("SELECT * FROM tickets WHERE public_key=?", chat_id, function(err, rows) {  
         
@@ -359,7 +361,7 @@ io.sockets.on("connection", function (socket) {
         //console.log(body);
         var sqlite3 = require('sqlite3').verbose();
 		//var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
-		var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+		var db = new sqlite3.Database(ip_address);
 		db.all("SELECT * FROM tickets WHERE public_key=?",chat_id, function(err, rows) {  
 	        if(rows.length==0){
 	        	//socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
@@ -456,7 +458,7 @@ io.sockets.on("connection", function (socket) {
         					console.log("KDS closed");
 
     						//var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
-							var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+							var db = new sqlite3.Database(ip_address);
 							db.all("SELECT * FROM tickets WHERE public_key=?",chat_id, function(err, rows) {  
 						        if(rows.length==0){
 						        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
@@ -584,7 +586,7 @@ io.sockets.on("connection", function (socket) {
         					console.log("KDS closed");
         					//socket.emit("exists", {msg: "Draw password is expired or wrong.", proposedName: "Wrong pass"});
         					//var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
-							var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+							var db = new sqlite3.Database(ip_address);
 							db.all("SELECT * FROM tickets WHERE public_key=?",chat_id, function(err, rows) {  
 						        if(rows.length==0){
 						        	return;
