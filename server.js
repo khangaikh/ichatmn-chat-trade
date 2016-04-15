@@ -191,8 +191,8 @@ io.sockets.on("connection", function (socket) {
 		fs.writeFile(file.name,file.buffer, function(err){
 			
 			var sqlite3 = require('sqlite3').verbose();
-			var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
-			//var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+			//var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
+			var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
 			
 			//First encrypt config
 			var crypto = require('crypto'),
@@ -244,8 +244,8 @@ io.sockets.on("connection", function (socket) {
 		var auth = true;
 
 		var sqlite3 = require('sqlite3').verbose();
-		var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
-		//var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+		//var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
+		var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
 
 		db.all("SELECT * FROM tickets WHERE public_key=?", chat_id, function(err, rows) {  
         
@@ -358,8 +358,8 @@ io.sockets.on("connection", function (socket) {
    	 	
         //console.log(body);
         var sqlite3 = require('sqlite3').verbose();
-		var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
-		//var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+		//var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
+		var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
 		db.all("SELECT * FROM tickets WHERE public_key=?",chat_id, function(err, rows) {  
 	        if(rows.length==0){
 	        	//socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
@@ -455,8 +455,8 @@ io.sockets.on("connection", function (socket) {
         					console.log("Buyer checking failed");
         					console.log("KDS closed");
 
-    						var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
-							//var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+    						//var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
+							var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
 							db.all("SELECT * FROM tickets WHERE public_key=?",chat_id, function(err, rows) {  
 						        if(rows.length==0){
 						        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
@@ -589,8 +589,8 @@ io.sockets.on("connection", function (socket) {
         					console.log("Seller checking failed");
         					console.log("KDS closed");
         					//socket.emit("exists", {msg: "Draw password is expired or wrong.", proposedName: "Wrong pass"});
-        					var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
-							//var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
+        					//var db = new sqlite3.Database("/Applications/XAMPP/htdocs/ichatmn-web/ichat.db");
+							var db = new sqlite3.Database("/opt/lampp/htdocs/ichatmn-web/ichat.db");
 							db.all("SELECT * FROM tickets WHERE public_key=?",chat_id, function(err, rows) {  
 						        if(rows.length==0){
 						        	return;
