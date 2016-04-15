@@ -472,14 +472,10 @@ io.sockets.on("connection", function (socket) {
 										          1: attempt,
 										          2: chat_id
 										      	});
-										      	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-										      	return;
 
 						        			}else{
 						        				console.log("Buyer already used 3 attemts failed");
 						        				console.log("KDS closed");
-						        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-										      	return;
 						        			}
 						        		}else{
 						        			console.log("Seller attempt");
@@ -495,8 +491,6 @@ io.sockets.on("connection", function (socket) {
 						        			}else{
 						        				console.log("Seller used 3 attemts failed");
 						        				console.log("KDS closed");
-						        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-										      	return;
 						        				
 						        			}
 						        		}
@@ -505,6 +499,8 @@ io.sockets.on("connection", function (socket) {
 								}
 						    });
 							db.close();
+							socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+							return;
 							
         				}
 	        		}else{
@@ -603,14 +599,10 @@ io.sockets.on("connection", function (socket) {
 										          1: attempt,
 										          2: chat_id
 										      	});
-										   		socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-												return;
 
 						        			}else{
 						        				console.log("Buyer already used 3 attemts failed");
 						        				console.log("KDS closed");
-						        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-												return;
 						        			}
 						        		}else{
 						        			console.log("Seller attempt");
@@ -621,14 +613,9 @@ io.sockets.on("connection", function (socket) {
 										          1: attempt,
 										          2: chat_id
 										      	});
-												socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-												return;
 						        			}else{
 						        				console.log("Seller used 3 attemts failed");
 						        				console.log("KDS closed");
-						        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-												return;
-						        				
 						        			}
 						        		}
 						        		  
@@ -644,17 +631,6 @@ io.sockets.on("connection", function (socket) {
 			    });  
 			}
 		});
-
-		console.log("Here New");
-
-		
-
-		if(chat_id==0){
-			purge(socket, "disconnect",chat_id);
-		}
-
-		/* Checking if public room is created */
-
 		
 	});
 
