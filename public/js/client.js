@@ -344,10 +344,11 @@ $(document).ready(function() {
   //socket-y stuff
   socket.on("exists", function(data) {
     $("#errors").empty();
+    $("#login-screen").show();
+    $("#main-chat-screen").hide();
     $("#errors").show();
     $("#errors").append(data.msg + " <strong>" + data.proposedName + "</strong>");
-     // toggleNameForm();
-     // toggleChatWindow();
+    return;
   });
   
   socket.on("next", function(image) {

@@ -40,8 +40,12 @@
   </style>
 </head>
 <body>
+  <div class="alert alert-danger" id="errors">
+
+  </div>
+
   <div class="main col-md-6">
-    <div class="alert alert-danger" id="errors"></div>
+
     <div id="login-screen" style="margin-left:50px">
       <p class="lead">Welcome to iChat.mn Trading room </p>
         <p>Please enter your interest type password and then draw your secret to enter.</p>
@@ -51,7 +55,7 @@
         </select>
         <br />
         <div id="questions" style="margin-left:250px" >
-               <select class="form-control input-sm" style="max-width:250px">
+               <select class="form-control input-sm" style="max-width:350px">
                 <option>What is  car you want to drive?</option>
                 <option>What is  name your fans singer?</option>
                 <option>What is  favorite movie name ?</option>
@@ -65,8 +69,8 @@
               </select>  
               <br/>
               <p style="text-align:left">Answer 1 : </p>
-              <input class="form-control input-sm" style="width:250px" id="ans1" /> <br />
-              <select class="form-control input-sm" style="max-width:250px">
+              <input class="form-control input-sm" style="width:350px" id="ans1" /> <br />
+              <select class="form-control input-sm" style="max-width:350px">
                 <option>What is  car you want to drive?</option>
                 <option>What is  name your fans singer?</option>
                 <option>What is  favorite movie name ?</option>
@@ -79,8 +83,8 @@
                 <option>What school did you attend for sixth grade?</option>
               </select>  
                 <br /><p style="text-align:left">Answer 2 : </p> 
-                <input class="form-control input-sm" style="width:250px" id="ans2" /> <br />
-                <select class="form-control input-sm" style="max-width:250px">
+                <input class="form-control input-sm" style="width:350px" id="ans2" /> <br />
+                <select class="form-control input-sm" style="max-width:350px">
                 <option>What is  car you want to drive?</option>
                 <option>What is  name your fans singer?</option>
                 <option>What is  favorite movie name ?</option>
@@ -93,10 +97,9 @@
                 <option>What school did you attend for sixth grade?</option>
               </select>
               <br /><p style="text-align:left">Answer 3 : </p> 
-              <input class="form-control input-sm" style="width:250px" id="ans3" />
+              <input class="form-control input-sm" style="width:350px" id="ans3" />
         </div>
-        <div id="secret-draw" style="display:none" >
-          Draw your secret key
+        <div id="secret-draw" style="display:none; margin-left:150px" >
           <div id="patternHolder" class="pattern-holder patt-holder" >
           </div>
         </div>
