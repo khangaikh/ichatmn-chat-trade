@@ -271,30 +271,33 @@ io.sockets.on("connection", function (socket) {
 	        			if(row.buyer_ans_3 != a3){
 	        				auth =false;
 	        				console.log("ba3");
-	        			}
-
-	        			if(row.buyer_attempt>0 ){		
-	        				var attemp = row.buyer_attempt-1;
-	        				db.run("UPDATE tickets SET buyer_attempt =? WHERE public_key=?", {
-					          1: attemp,
-					          2: chat_id
-					      	});
-
-
-	        			}else{
-	        				console.log("Buyer already used 3 attemts failed");
-	        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Attempt finished"});
-	        				return;
-	        				auth = false;
-
-	        			}
+	        			}	        			
 	        			if(auth){
-	        				console.log(row.secret_draw_buyer);
-				        	socket.emit("next", {image: row.secret_draw_buyer, proposedName: "Success"});
-				        	return;
+	        				if(row.seller_attempt==0 ){		
+		        				console.log("Seller already used 3 attemts failed");
+		        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Attempt finished"});
+		        				return;
+		        			}else{
+		        				console.log("Buyer passed");
+		        				console.log(row.secret_draw_buyer);
+				        		socket.emit("next", {image: row.secret_draw_buyer, proposedName: "Success"});
+				        		return;
+		        			}
 				        }else{
-				        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-				        	return;
+				        	if(row.buyer_attempt>0 ){		
+		        				var attemp = row.buyer_attempt-1;
+		        				db.run("UPDATE tickets SET buyer_attempt =? WHERE public_key=?", {
+						          1: attemp,
+						          2: chat_id
+						      	});
+		        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+				        		return;
+		        			}else{
+		        				console.log("Buyer already used 3 attemts failed");
+		        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Attempt finished"});
+		        				return;
+		        				auth = false;
+		        			}
 				        }
 	        		}
 	        		else{
@@ -309,24 +312,33 @@ io.sockets.on("connection", function (socket) {
 	        				auth =false;
 	        			}
 
-	        			if(row.seller_attempt>0 ){		
-	        				var attemp = row.seller_attempt-1;
-	        				db.run("UPDATE tickets SET seller_attempt =? WHERE public_key=?", {
-					          1: attemp,
-					          2: chat_id
-					      	});
-
-	        			}else{
-	        				console.log("Seller already used 3 attemts failed");
-	        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Attempt finished"});
-	        				auth = false;
-	        			}
 	        			if(auth){
-				        	socket.emit("next", {image: row.secret_draw_seller});
-				        	return;
+	        				if(row.seller_attempt==0 ){		
+		        				console.log("Seller already used 3 attemts failed");
+		        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Attempt finished"});
+		        				return;
+		        			}else{
+		        				console.log("Seller passed");
+		        				socket.emit("next", {image: row.secret_draw_seller});
+				        		return;
+		        			}
+				        	
 				        }else{
-				        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
-				        	return;
+				        	if(row.seller_attempt>0 ){		
+		        				var attemp = row.seller_attempt-1;
+		        				db.run("UPDATE tickets SET seller_attempt =? WHERE public_key=?", {
+						          1: attemp,
+						          2: chat_id
+						      	});
+						      	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+				        		return;
+		        			}else{
+
+		        				console.log("Seller already used 3 attemts failed");
+		        				socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Attempt finished"});
+		        				return;
+		        			}
+				        	
 				        }
 	        		}
 			    })  
