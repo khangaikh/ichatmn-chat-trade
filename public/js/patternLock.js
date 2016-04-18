@@ -197,7 +197,6 @@
 
             }
 
-
         },
         endHandler = function (e, obj) {
             e.preventDefault();
@@ -408,7 +407,7 @@
         radius: 25,
         patternVisible: true,
         lineOnMove: true,
-        delimiter: "", // a delimeter between the pattern
+        delimiter: "-", // a delimeter between the pattern
         enableSetPattern: false
     };
 
