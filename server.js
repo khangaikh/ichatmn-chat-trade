@@ -374,8 +374,7 @@ io.sockets.on("connection", function (socket) {
         				console.log("Here1");
         				console.log(row.buyer_key);
 						console.log(pass);
-						console.log(similar(row.buyer_key,pass));
-        				if(similar(row.buyer_key,pass)>90){
+        				if(row.buyer_key===pass){
         					console.log("Buyer checking passed");
         					sizePeople = _.size(people);
 							if(sizePeople>2){
@@ -511,7 +510,7 @@ io.sockets.on("connection", function (socket) {
         				console.log(row.seller_key);
         				console.log(pass);
         				console.log(similar(row.seller_key,pass));
-        				if(similar(row.seller_key,pass)>90){
+        				if(row.seller_key==pass){
         					console.log("Seller checking passed");
         					sizePeople = _.size(people);
 							if(sizePeople>2){
