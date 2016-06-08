@@ -45,7 +45,6 @@
   </div>
 
   <div class="main col-md-6">
-
     <div id="login-screen">
       <p class="lead">Welcome to iChat.mn Trading room </p>
         <p>Please enter your interest type password and then draw your secret to enter.</p>
@@ -187,6 +186,28 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">Close</button>
           <button data-dismiss="modal" id="requestFile" class="btn btn-success btn-lg">Request</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="getFileModal" tabindex="-1" role="dialog" aria-labelledby="getImage" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="createRoomLabel">Please upload your encrypted file and permission download your file</h4>
+        </div>
+        <div class="modal-body">
+          <input type="text" class="form-control input-lg"  placeholder="file password" id="filePassword" />
+          <form id ="uploadForm" enctype ="multipart/form-data" action="/api/photo"  method="post"  class="form-inline" style="display:none">
+            <input type="file" class="form-control input-lg" name="userPhoto" />
+            <input type="submit" class="btn btn-lg btn-default" value="Upload Image" id="upload"/>
+          </form>
+        </div>
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
