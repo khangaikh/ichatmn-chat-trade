@@ -39,22 +39,24 @@
       }
   </style>
 </head>
-<body>
+<body style="padding:50px">
+  <input id="me" type=""text value="" style="display:none"/>
   <div class="alert alert-danger" id="errors">
 
   </div>
-
+  <div class="main col-md-3">
+  </div>
   <div class="main col-md-6">
     <div id="login-screen">
       <p class="lead">Welcome to iChat.mn Trading room </p>
         <p>Please enter your interest type password and then draw your secret to enter.</p>
-        <select id="interest" class="form-control input-sm" style="width:250px; margin-left:150px">
+        <select id="interest" class="form-control input-sm">
           <option value="2">Buyer</option>
           <option value="1">Seller</option>
         </select>
         <br />
-        <div id="questions" style="margin-left:150px" >
-               <select class="form-control input-sm" style="max-width:350px">
+        <div id="questions" >
+               <select class="form-control input-sm">
                 <option>What is  car you want to drive?</option>
                 <option>What is  name your fans singer?</option>
                 <option>What is  favorite movie name ?</option>
@@ -68,8 +70,8 @@
               </select>  
               <br/>
               <p style="text-align:left">Answer 1 : </p>
-              <input class="form-control input-sm" style="width:350px" id="ans1" /> <br />
-              <select class="form-control input-sm" style="max-width:350px">
+              <input class="form-control input-sm" id="ans1" /> <br />
+              <select class="form-control input-sm">
                 <option>What is  car you want to drive?</option>
                 <option>What is  name your fans singer?</option>
                 <option>What is  favorite movie name ?</option>
@@ -82,8 +84,8 @@
                 <option>What school did you attend for sixth grade?</option>
               </select>  
                 <br /><p style="text-align:left">Answer 2 : </p> 
-                <input class="form-control input-sm" style="width:350px" id="ans2" /> <br />
-                <select class="form-control input-sm" style="max-width:350px">
+                <input class="form-control input-sm" id="ans2" /> <br />
+                <select class="form-control input-sm" >
                 <option>What is  car you want to drive?</option>
                 <option>What is  name your fans singer?</option>
                 <option>What is  favorite movie name ?</option>
@@ -96,15 +98,16 @@
                 <option>What school did you attend for sixth grade?</option>
               </select>
               <br /><p style="text-align:left">Answer 3 : </p> 
-              <input class="form-control input-sm" style="width:350px" id="ans3" />
+              <input class="form-control input-sm"  id="ans3" />
         </div>
         <div id="secret-draw" style="display:none; margin-left:150px" >
-          <div id="patternHolder" class="pattern-holder patt-holder" >
+          <div id="patternHolder" class="pattern-holder patt-holder" style="margin-left:7%" >
           </div>
         </div>
         <br>
           <button id="login_question" class="btn btn-lg btn-success " style="width:100%"> Login</button>
-          <button id="login_trade" type="button" class="btn btn-lg btn-success " style="width:100%; display:none"> Login</button>
+          <button id="login_trade" type="button" class="btn btn-lg btn-success " style="width:30%; display:none; width: 37%;"> Login</button>
+          <button id="clearing" type="button" class="btn btn-lg btn-default" style="width:30%; display:none; width: 18%;">Clear</button>
           <button id="refresh" type="button" class="btn btn-lg btn-success " style="width:100%; display:none"> Refresh</button>
         <br />
         <br />
@@ -115,6 +118,19 @@
       <div class="col-md-3">
         <ul id="rooms" class="list-group"></ul>
         <ul id="people" class="list-group"></ul>
+        <div class="form-inline" style="border: solid #DC4E30 1px; border-radius:5px; padding:10px; padding-top:15px; display:none" id="buyerWindow" >
+          <div id="buyer_secret">
+            <div id="buyer_step1">
+              
+            </div>
+            <div id="buyer_step2">
+                
+            </div>
+            <div id="buyer_step3">
+                
+            </div>
+          </div>
+        </div>
       </div>
       <div class="col-md-6">
         <div id="conversation">
@@ -126,17 +142,25 @@
           </div>
           <input type="submit" name="send" id="send" value="Send" class="btn btn-success btn-lg">
          <!-- <input type="button" name="start_button" id="start_button" value="Record" onclick="startButton(event)" class="btn btn-info btn-lg"> -->
-          <div class="btn-group">
+          <div class="btn-group" id="buyer_actions" style="display:none">
             <button type="button" class="btn btn-lg btn-info dropdown-toggle" data-toggle="dropdown" >
               Actions <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" role="menu">
               <li><a href="#" name="createRoom" data-toggle="modal" data-target="#roomModal">SET PAYMENT</a></li>
-              <li><a href="#" name="secretFile" data-toggle="modal" data-target="#getFileModal">GIVE SECRET FILE</a></li>
+              <li><a href="#" name="secretFile" data-toggle="modal" data-target="#getFileModal1">GET SECRET KEY</a></li>
+              <li><a href="#" name="secretFile" data-toggle="modal" data-target="#getFileModal2">DECRYPT FILE WITH KEY</a></li>
             </ul>
           </div>
-        
-          <img src="" width="500px" height="500px"> </img>
+
+          <div class="btn-group" id="seller_actions" style="display:none">
+            <button type="button" class="btn btn-lg btn-info dropdown-toggle" data-toggle="dropdown" >
+              Actions <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#" name="secretFile" data-toggle="modal" data-target="#getFileModal">GIVE ENCRYPTED FILE </a></li>
+            </ul>
+          </div>
         </form>
       </div>
        <div class="col-md-2">
@@ -144,7 +168,8 @@
       </div>
     </div>
   </div>
-
+  <div class="main col-md-3">
+  </div>
   <!-- Modal start -->
   <div class="modal fade" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="createRoomLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -159,8 +184,7 @@
           <form class="form-inline" id="createRoomForm">
             Transfer amount
             <input type="text" class="form-control input-lg"  placeholder="Amount in USD" id="createRoomName">
-            To user :
-            <select id="users" class="form-control input-lg">
+            <select id="users" class="form-control input-lg" style="display:none">
             </select>
           </form>
         </div>
@@ -173,15 +197,63 @@
   </div>
 
   <!-- Modal start -->
-  <div class="modal fade" id="getFileModal" tabindex="-1" role="dialog" aria-labelledby="getImage" aria-hidden="true">
+  <div class="modal fade" id="getFileModal1" tabindex="-1" role="dialog" aria-labelledby="getImage" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title" id="createRoomLabel">Please write your file</h4>
+          <h4 class="modal-title" id="createRoomLabel">Please write secret keys to corresponding server IP address</h4>
         </div>
         <div class="modal-body">
-          <input type="text" class="form-control input-lg"  placeholder="file password" id="filePassword" />
+          <div class="row" style="margin-bottom:10px">
+            <div class="col-md-6">
+              <input type="text" class="form-control input-lg"  placeholder="IP1" id="host1" />
+            </div> 
+            <div class="col-md-6">
+              <input type="text" class="form-control input-lg"  placeholder="KEY1" id="key1" />
+            </div>
+          </div> 
+          <div class="row" style="margin-bottom:10px">
+            <div class="col-md-6">
+              <input type="text" class="form-control input-lg"  placeholder="IP2" id="host2" />
+            </div> 
+            <div class="col-md-6">
+              <input type="text" class="form-control input-lg"  placeholder="KEY2" id="key2" />
+            </div>
+          </div> 
+          <div class="row" style="margin-bottom:10px">
+            <div class="col-md-6">
+              <input type="text" class="form-control input-lg"  placeholder="IP3" id="host3" />
+            </div> 
+            <div class="col-md-6">
+              <input type="text" class="form-control input-lg"  placeholder="KEY3" id="key3" />
+            </div>
+          </div> 
+        
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">Close</button>
+          <button data-dismiss="modal" id="requestSecretKey" class="btn btn-success btn-lg">Request</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="getFileModal2" tabindex="-1" role="dialog" aria-labelledby="getImage" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="createRoomLabel">Please upload your encrypted file with secret key</h4>
+        </div>
+        <div class="modal-body">
+          <input type="text" class="form-control input-lg"  placeholder="Paste the file key here" id="filePassword" />
+          <br />
+          <br />
+          <form id ="uploadForm1" enctype ="multipart/form-data" action="/api/photo"  method="post"  class="form-inline">
+            <input type="file" class="form-control input-lg" name="userPhoto" id="decryptFile" />
+            <input type="submit" class="btn btn-lg btn-default" value="Upload Image" id="upload1"/>
+          </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">Close</button>
@@ -196,17 +268,15 @@
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title" id="createRoomLabel">Please upload your encrypted file and permission download your file</h4>
+          <h4 class="modal-title" id="createRoomLabel">Please upload your encrypted file </h4>
         </div>
         <div class="modal-body">
-          <input type="text" class="form-control input-lg"  placeholder="file password" id="filePassword" />
-          <form id ="uploadForm" enctype ="multipart/form-data" action="/api/photo"  method="post"  class="form-inline" style="display:none">
-            <input type="file" class="form-control input-lg" name="userPhoto" />
-            <input type="submit" class="btn btn-lg btn-default" value="Upload Image" id="upload"/>
+          <form id ="uploadForm" enctype ="multipart/form-data" action="/api/photo"  method="post"  class="form-inline">
+            <input type="file" class="form-control input-lg" name="userPhoto" id="secretFile"/>
+            <input type="submit" class="btn btn-lg btn-default" value="Send to Buyer" id="upload"/>
           </form>
         </div>
         <div class="modal-footer">
-
           <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>

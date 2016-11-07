@@ -95,29 +95,43 @@ $(document).ready(function() {
   });
 
   //setup "global" variables first
-  var socket = io.connect("127.0.0.1:8081");
+  var socket = io.connect("192.168.10.110:8081");
   var myRoomID = null;
   var curUser = null;
   $("#private_actions").hide();
-  $("#uploadForm").hide();
-
-
+ 
   socket.on('connect', function(){
 
     var delivery = new Delivery(socket);
  
     delivery.on('delivery.connect',function(delivery){
       $("#upload[type=submit]").click(function(evt){
-        var file = $("input[type=file]")[0].files[0];
-        delivery.send(file);
+        var file = $("#secretFile")[0].files[0];
+        var privateRoomID = $("#me").val();
+
+        var extraParams = {roomID: privateRoomID, type:1, msg: "Msg sent"};
+        delivery.send(file,extraParams);
         evt.preventDefault();
+        $('#getFileModal').modal('toggle');
+        
       });
+
+      $("#upload1[type=submit]").click(function(evt){
+        var file = $("#decryptFile")[0].files[0];
+        var privateRoomID = $("#me").val();
+        var pass = $("#filePassword").val
+        var extraParams = {roomID: privateRoomID, type:2, passkey: pass};
+        delivery.send(file,extraParams);
+        evt.preventDefault();
+        $('#getFileModal2').modal('toggle');
+        
+      });
+
     });
  
     delivery.on('send.success',function(fileUID){
       console.log("file was successfully sent." + fileUID.name);
-      $('#uploadFile').modal('toggle');
-      $("#msg").val("file:"+fileUID.name);
+      $("#errors").hide();
     });
   });
  
@@ -246,7 +260,7 @@ $(document).ready(function() {
     }
     var url = window.location.href; 
     var stringUrl= url.toString();
-    socket.emit("check-question", interest, ans1, ans2, ans3, url);
+    socket.emit("check_question", interest, ans1, ans2, ans3, url);
   });
 
   $("#showCreateRoom").click(function() {
@@ -256,7 +270,7 @@ $(document).ready(function() {
   $("#createRoomBtn").click(function() {
     var roomExists = false;
     var roomName = $("#createRoomName").val();
-    var invite = $("#users").val();
+    var invite = "Seller";
     socket.emit("check", roomName, function(data) {
       roomExists = data.result;
        if (roomExists) {
@@ -267,18 +281,33 @@ $(document).ready(function() {
         if (roomName.length > 0) { //also check for roomname
           socket.emit("createRoom", roomName, invite);
           $("#errors").empty();
-          $("#private_actions").show();
           $("#errors").hide();
           }
         }
     });
   });
 
-  $("#requestFile").click(function() {
-    alert(2);
-    var url = window.location.href;
-    socket.emit("checkPassword", 1,url);
-    alert(3);
+  $("#requestSecretKey").click(function() {
+    
+    var host1 = $("#host1").val();
+    var host2 = $("#host2").val();
+    var host3 = $("#host3").val();
+    var key1 = $("#key1").val();
+    var key2 = $("#key2").val();
+    var key3 = $("#key3").val();
+    
+    if(host1 =="" || host2 =="" || host3 =="" || key1 =="" || key2 =="" || key3 == ""){
+      alert("Please enter your id secret key ip addresses");
+      return;
+    }    
+
+    var server1  = {ip: host1, key:key1};
+    var server2  = {ip: host2, key:key2};
+    var server3  = {ip: host3, key:key3};
+   var url = window.location.href;  
+
+    socket.emit("checkPassword", server1,server2,server3, url);
+
   });
 
   socket.on("getFile1", function(data) {
@@ -327,34 +356,61 @@ $(document).ready(function() {
   });
 
   $("#interest").on('change', function() {
-    var val = $(this).val();
-    if (val =="seller"){
-      $("#uploadForm").show();
-    }else{
-       $("#uploadForm").hide();
-    }
   });
 
   //socket-y stuff
   socket.on("exists", function(data) {
     $("#errors").empty();
-    $("#login-screen").show();
-    $("#main-chat-screen").hide();
     $("#errors").show();
     $("#errors").append(data.msg + " <strong>" + data.proposedName + "</strong>");
     return;
   });
+
+  socket.on("show_seller_actions", function(data) {
+    console.log(data);
+    $("#seller_actions").show();    
+  });
+
+  socket.on("show_buyer_actions", function(data) {
+    console.log(data);
+    $("#buyer_actions").show();    
+    $("#buyerWindow").show();
+  });
   
   socket.on("next", function(image) {
     console.log(image);
+    
     $("#interest").hide();
     $("#questions").hide();
     $("#login_question").hide();
+    
     $("#secret-draw").show();
     $("#login_trade").show();
+    $("#clearing").show();
+
     $("#patternHolder").css('background', 'url(' + image.image + ')');  
     $("#patternHolder").css('background-size', 'contain');  
+  });
 
+  socket.on("hide", function(msg) {
+    alert(msg);
+    $("#errors").hide();
+  });
+
+  socket.on("setKey", function(msg) {
+    $("#errors").hide();
+    $("#buyer_step2").empty();
+    $("#buyer_step2").append("<p><strong>Step 2: </strong>Please copy your key :"+msg+"</p>");
+  });
+
+  socket.on("seyDocBack", function(msg) {
+    $("#errors").hide();
+    $("#buyer_step3").empty();
+    $("#buyer_step3").append("<p><strong>Step 3: </strong></strong>Please download your encrypted file :<a href='http://192.168.10.110/ichatmn-web/"+msg+"' download='proposed_file_name'>Download now</a></p>");
+  });
+
+  $("#clearing").click(function() {
+    lock.reset();
   });
 
   socket.on("joined", function() {
@@ -404,8 +460,17 @@ $(document).ready(function() {
     $("#people").empty();
     $("#users").empty();
     $('#people').append("<li class=\"list-group-item active\">People online <span class=\"badge\">"+data.count+"</span></li>");
+    
     var type = data.type;
     var name = data.user;
+    var buyer = data.buyer;
+    
+    $("#me").val(type);
+
+    if(buyer == 1){
+        $("#buyer_step1").append("<p><strong>Step 1: </strong>Please download your encrypted file :<a href='http://192.168.10.110/ichatmn-web/upload/"+type+"/file.pub' download='proposed_file_name'>Download now</a></p>")
+    }
+
     $.each(data.people, function(a, obj) {
       if(obj.type === type ){
         if (!("country" in obj)) {
@@ -415,11 +480,8 @@ $(document).ready(function() {
         }
       
         $('#people').append("<li class=\"list-group-item\"><span>" + obj.name+'('+obj.device+')' + "</span> <i class=\"fa fa-"+obj.device+"\"></i> " + html + "</li>");
-        
-
-        
         //if(curUser != name){
-          $('#users').append("<option value="+obj.name+"><span>" + obj.name + "</span></option>");  
+        $('#users').append("<option value="+obj.name+"><span>" + obj.name + "</span></option>");  
        // }
           
       }
@@ -436,7 +498,7 @@ $(document).ready(function() {
       });
     }*/
   });
-  0
+  
   socket.on("chat", function(msTime, person, msg, file) {
     if(file==0){
       $("#msgs").append("<li><strong><span class='text-success'>" + timeFormat(msTime) + person.name + "</span></strong>: " + msg + "</li>");
@@ -461,7 +523,7 @@ $(document).ready(function() {
 
   socket.on("roomList", function(data) {
     $("#rooms").text("");
-    $("#rooms").append("<li class=\"list-group-item active\">List of rooms <span class=\"badge\">"+data.count+"</span></li>");
+    $("#rooms").append("<li class=\"list-group-item active\">Trade room information <span class=\"badge\">"+data.count+"</span></li>");
      if (!jQuery.isEmptyObject(data.rooms)) { 
       var type = data.type; 
       console.log("chat :"+ type);
@@ -470,12 +532,12 @@ $(document).ready(function() {
           console.log("roomchat :"+ curUser);
           console.log("invitee :"+ room.invited);
           var html ="";
-          if(room.invited == curUser ){
+           if(room.invited == curUser ){
              var html = "$<h5>PAID</h5>";
+             $('#rooms').append("<li id="+id+" class=\"list-group-item\"><span>" + room.name + "-" + html + "</span></li>");
           }
-          $('#rooms').append("<li id="+id+" class=\"list-group-item\"><span>" + room.name + "</span> " + html + "</li>");
-        }
-        
+          
+        }  
       });
     } else {
       $("#rooms").append("<li class=\"list-group-item\">There are no rooms yet.</li>");

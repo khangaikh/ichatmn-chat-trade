@@ -1,0 +1,23 @@
+var shares = secrets.share(crypted, 10, 5); 
+				console.log(file.name);
+				console.log(file.buffer);
+				console.log(shares[0]);
+				var fs = require('fs');
+
+				for(var i=0; i<5; i++){
+					var filePath= dir+'/'+ i;
+					fs.writeFile(filePath, shares[i], function(err) {
+					    if(err) {
+					        return console.log(err);
+					    }
+					    
+					});
+					j=i+1;
+					var slice = file.buffer.slice(j, 256)
+					fs.writeFile(filePath, slice, function(err) {
+					    if(err) {
+					        return console.log(err);
+					    }
+					    console.log("The file was saved!");
+					});
+				}
