@@ -94,8 +94,9 @@ $(document).ready(function() {
       {matrix:[5,5]
   });
 
+  var ip_run = "192.168.10.107"
   //setup "global" variables first
-  var socket = io.connect("192.168.10.110:8081");
+  var socket = io.connect(ip_run+":8081");
   var myRoomID = null;
   var curUser = null;
   $("#private_actions").hide();
@@ -406,7 +407,7 @@ $(document).ready(function() {
   socket.on("seyDocBack", function(msg) {
     $("#errors").hide();
     $("#buyer_step3").empty();
-    $("#buyer_step3").append("<p><strong>Step 3: </strong></strong>Please download your encrypted file :<a href='http://192.168.10.110/ichatmn-web/"+msg+"' download='proposed_file_name'>Download now</a></p>");
+    $("#buyer_step3").append("<p><strong>Step 3: </strong></strong>Please download your encrypted file :<a href='http://"+ip_run+"/ichatmn-web/"+msg+"' download='proposed_file_name'>Download now</a></p>");
   });
 
   $("#clearing").click(function() {
@@ -468,7 +469,7 @@ $(document).ready(function() {
     $("#me").val(type);
 
     if(buyer == 1){
-        $("#buyer_step1").append("<p><strong>Step 1: </strong>Please download your encrypted file :<a href='http://192.168.10.110/ichatmn-web/upload/"+type+"/file.pub' download='proposed_file_name'>Download now</a></p>")
+        $("#buyer_step1").append("<p><strong>Step 1: </strong>Please download your encrypted file :<a href='http://"+ip_run+"/ichatmn-web/upload/"+type+"/file.pub' download='proposed_file_name'>Download now</a></p>")
     }
 
     $.each(data.people, function(a, obj) {

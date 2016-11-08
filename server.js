@@ -14,12 +14,14 @@ var multer  = require('multer');
 var done=false;
 var ip_address = '/opt/lampp/htdocs/ichatmn-web/ichat.db';
 
-var external_hosts = ['127.0.0.1', '192.168.10.124'];//,'192.168.10.101'];
-var num_hosts = 3;
+var external_hosts = ['127.0.0.1', '192.168.10.124'];//, '192.168.10.107'];//,'192.168.10.101'];
+var num_hosts = 2;
+
+var ip_run = "192.168.10.107";
 
 app.configure(function() {
 	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 8081);
-  	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP || "192.168.10.110");
+  	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP || ip_run);
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(express.static(__dirname + '/public'));
@@ -646,6 +648,7 @@ io.sockets.on("connection", function (socket) {
 		var url_parts = urlp.parse(url, true);
 		var query = url_parts.query;
 		chat_id = query.id;
+		var combined_string = "";
 
 	  	var sqlite3 = require('sqlite3').verbose();
 		var db = new sqlite3.Database(ip_address);
@@ -687,6 +690,7 @@ io.sockets.on("connection", function (socket) {
 						var request = require('request');
 						console.log("IPS are passed contacting KDS");
 						socket.emit("hide","Successfull");
+						
 
 						/*HOST1*/
 						// Set the headers
@@ -717,7 +721,7 @@ io.sockets.on("connection", function (socket) {
 						    'Content-Type': 'application/x-www-form-urlencoded'
 						}
 				
-						var url = 'http://'+  s1.ip + '/storage/get.php';
+						var url = 'http://'+  s1.ip + '/ichatmn-storage/get.php';
 						// Configure the request
 						var options = {
 						    url: url,
@@ -729,16 +733,20 @@ io.sockets.on("connection", function (socket) {
 						// Start the request
 						request(options, function (error, response, body) {
 						    if (!error && response.statusCode == 200) {
-						        // Print out the response body
-						        console.log(body)
+						    	
+						    	var body_key = response.body;
+						    	var key = body_key.split(">");
+						    	combined_string = combined_string+"**"+key[1];
+						    	console.log("Recieve key : "+JSON.stringify(key[1]));
+						    	console.timeEnd("Host distribute : "+s1.ip);
+								console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);
+
 						    }else{
-						    	console.log("Recieve key : "+response);
+						    	console.log("Recieve key : "+JSON.stringify(response));
 						    }
 
 						});
-						console.timeEnd("Host distribute : "+s1.ip);
-
-						console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);
+						
 
 						/*HOST2*/
 
@@ -768,7 +776,7 @@ io.sockets.on("connection", function (socket) {
 						    'Content-Type': 'application/x-www-form-urlencoded'
 						}
 						
-						var url = 'http://'+  s2.ip + '/storage/get.php';
+						var url = 'http://'+  s2.ip + '/ichatmn-storage/get.php';
 						// Configure the request
 						var options = {
 						    url: url,
@@ -780,15 +788,23 @@ io.sockets.on("connection", function (socket) {
 						// Start the request
 						request(options, function (error, response, body) {
 						    if (!error && response.statusCode == 200) {
-						        // Print out the response body
-						        console.log(body)
+						    	var body_key = response.body;
+						    	var key = body_key.split(">");
+						    	combined_string = combined_string+"**"+key[1];
+						    	console.log("Recieve key : "+JSON.stringify(key[1]));
+
+						    	console.timeEnd("Host distribute : "+s2.ip);
+								console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);
+
+						    	console.log(combined_string);
+								socket.emit("setKey", combined_string);
+
 						    }else{
-						    	console.log("Recieve key : "+response);
+						    	console.log("Recieve key : "+JSON.stringify(response));
 						    }
 
 						});
-						console.timeEnd("Host distribute : "+s2.ip);
-						console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);
+						
 
 						/*HOST3*/
 
@@ -830,7 +846,7 @@ io.sockets.on("connection", function (socket) {
 						// Start the request
 						request(options, function (error, response, body) {
 						    if (!error && response.statusCode == 200) {
-						        // Print out the response body
+						        // combined_string = combined_string+"**"+response;
 						        console.log(body)
 						    }else{
 						    	console.log("Recieve key : "+response);
@@ -839,8 +855,7 @@ io.sockets.on("connection", function (socket) {
 						});
 						console.timeEnd("Host distribute : "+s3.ip);
 						console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);*/
-
-		socket.emit("setKey", "14886728643218c332c737d98ab371c15c98f4514f6a5f6c6433dc8d20261a4308ff729d7235d3b2d6e5c0eb4b6968f936e65c608df326f6cae47015e9105e205c57745df0a55687f9995b964213e8ab2e4c0749d6ce20b10c5009af7492567392c3ba135386bf4d691c0");
+					
 
 					}else{
 						socket.emit("exists", {msg: "Hosts and keys are not match", proposedName: "Try agian"});
