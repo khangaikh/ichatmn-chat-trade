@@ -911,11 +911,6 @@ io.sockets.on("connection", function (socket) {
 		chat_id = query.id;
 		console.log(chat_id);
 
-		var requestData = {
-            "public_key": chat_id,
-            "pass": pass,
-            "solutions": 3
-		}
 
 		console.log("Connecting to KDS...");
    	 	
