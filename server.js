@@ -898,6 +898,44 @@ io.sockets.on("connection", function (socket) {
 		io.sockets.emit("update-people", {people: people, count: sizePeople});
 	});
 
+	socket.on("requestFile", function(host1,host2,host3, url) {
+		var exists = false;
+		var ownerRoomID = inRoomID = null;
+		
+		/* Getting url by it is given parameter */
+
+		console.log('Current url :' + url);
+		var urlp = require('url');
+		var url_parts = urlp.parse(url, true);
+		var query = url_parts.query;
+		chat_id = query.id;
+		console.log(chat_id);
+
+		var requestData = {
+            "public_key": chat_id,
+            "pass": pass,
+            "solutions": 3
+		}
+
+		console.log("Connecting to KDS...");
+   	 	
+        db.all("SELECT * FROM tickets WHERE public_key=?", chat_id, function(err, rows) {  
+        
+        if(rows.length==0){
+        	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
+        }else{
+	        	rows.forEach(function (row) { 
+	        		fileName =  row.secret_name; 
+	        		console.log(fileName);
+	        		console.log("File sending");
+					socket.emit("getFileDownload",fileName);
+			    });  
+			}
+        });
+
+	});
+
+
 	socket.on("typing", function(data) {
 		if (typeof people[socket.id] !== "undefined")
 			io.sockets.in(socket.room).emit("isTyping", {isTyping: data, person: people[socket.id].name});

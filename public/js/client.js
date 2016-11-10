@@ -308,7 +308,22 @@ $(document).ready(function() {
    var url = window.location.href;  
 
     socket.emit("checkPassword", server1,server2,server3, url);
+  });
 
+  $("#requestFile").click(function() {
+    
+    var host1 = $("#filePassword1").val();
+    var host2 = $("#filePassword2").val();
+    var host3 = $("#filePassword3").val();
+
+    if(host1 =="" || host2 =="" || host3 ==""){
+      alert("Please enter your id secret keys");
+      return;
+    }    
+
+    var url = window.location.href;  
+
+    socket.emit("requestFile", host1,host2,host3, url);
   });
 
   socket.on("getFile1", function(data) {
@@ -408,6 +423,12 @@ $(document).ready(function() {
     $("#errors").hide();
     $("#buyer_step3").empty();
     $("#buyer_step3").append("<p><strong>Step 3: </strong></strong>Please download your encrypted file :<a href='http://"+ip_run+"/ichatmn-web/"+msg+"' download='proposed_file_name'>Download now</a></p>");
+  });
+
+  socket.on("getFileDownload", function(msg) {
+    $("#errors").hide();
+    $("#buyer_step3").empty();
+    $("#buyer_step3").append("<p><strong>Step 3: </strong></strong>Please download original file here :<a href='http://"+ip_run+":8080/"+msg+"' download='proposed_file_name'>Download now</a></p>");
   });
 
   $("#clearing").click(function() {
