@@ -17,7 +17,7 @@ var ip_address = '/opt/lampp/htdocs/ichatmn-web/ichat.db';
 var external_hosts = ['127.0.0.1', '192.168.10.124'];//, '192.168.10.107'];//,'192.168.10.101'];
 var num_hosts = 2;
 
-var ip_run = "192.168.10.107";
+var ip_run = "192.168.10.124";
 
 app.configure(function() {
 	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 8081);

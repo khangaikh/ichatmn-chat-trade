@@ -94,7 +94,7 @@ $(document).ready(function() {
       {matrix:[5,5]
   });
 
-  var ip_run = "192.168.10.107"
+  var ip_run = "192.168.10.124"
   //setup "global" variables first
   var socket = io.connect(ip_run+":8081");
   var myRoomID = null;
