@@ -913,14 +913,17 @@ io.sockets.on("connection", function (socket) {
 
 
 		console.log("Connecting to KDS...");
-   	 	
+
+		var sqlite3 = require('sqlite3').verbose();
+		var db = sqlite3_db(ip_address);
+	   	 	
         db.all("SELECT * FROM tickets WHERE public_key=?", chat_id, function(err, rows) {  
         
         if(rows.length==0){
         	socket.emit("exists", {msg: "The one time password is expired or wrong.", proposedName: "Wrong pass"});
         }else{
 	        	rows.forEach(function (row) { 
-	        		fileName =  row.secret_name; 
+	        		var fileName =  row.secret_name; 
 	        		console.log(fileName);
 	        		console.log("File sending");
 					socket.emit("getFileDownload",fileName);
