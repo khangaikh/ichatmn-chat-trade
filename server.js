@@ -915,7 +915,7 @@ io.sockets.on("connection", function (socket) {
 		console.log("Connecting to KDS...");
 
 		var sqlite3 = require('sqlite3').verbose();
-		var db = sqlite3_db(ip_address);
+		var db = new sqlite3.Database(ip_address);
 	   	 	
         db.all("SELECT * FROM tickets WHERE public_key=?", chat_id, function(err, rows) {  
         
