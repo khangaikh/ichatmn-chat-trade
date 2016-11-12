@@ -982,7 +982,7 @@ io.sockets.on("connection", function (socket) {
 	        		var fileName =  row.secret_name; 
 	        		console.log(fileName);
 	        		console.log("File sending");
-	        		var file  = __dirname+"/"+fileName;
+	        		var file  = fileName;
 					socket.emit("getFileDownload",file);
 			    });  
 			}
