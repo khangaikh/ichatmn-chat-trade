@@ -805,7 +805,7 @@ io.sockets.on("connection", function (socket) {
 
 						});
 						
-						/*HOST2*/
+						/*HOST3*/
 
 						console.time("Host distribute : "+s3.ip);
 						var title= "Host retrieved : ", t = process.hrtime();
