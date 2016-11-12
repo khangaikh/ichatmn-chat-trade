@@ -797,7 +797,7 @@ io.sockets.on("connection", function (socket) {
 								console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);
 
 						    	console.log(combined_string);
-								socket.emit("setKey", combined_string);
+								//socket.emit("setKey", combined_string);
 
 						    }else{
 						    	console.log("Recieve key : "+JSON.stringify(response));
@@ -805,6 +805,62 @@ io.sockets.on("connection", function (socket) {
 
 						});
 						
+						/*HOST2*/
+
+						console.time("Host distribute : "+s3.ip);
+						var title= "Host retrieved : ", t = process.hrtime();
+						var t1 = process.hrtime(t);
+
+						var filePath= 'http://'+ s3.ip+':8889';
+
+						var headers = {
+						    'User-Agent': chat_id,
+						    'Content-Type': 'application/x-www-form-urlencoded'
+						}
+
+						// Configure the request
+						var options = {
+						    url: filePath,
+						    method: 'POST',
+						    headers: headers
+						}
+
+						// Start the request
+						request(options, function (error, response, body) {});
+
+						var headers = {
+						    'User-Agent': 'Super Agent/0.0.1',
+						    'Content-Type': 'application/x-www-form-urlencoded'
+						}
+						
+						var url = 'http://'+  s3.ip + '/ichatmn-storage/get.php';
+						// Configure the request
+						var options = {
+						    url: url,
+						    method: 'POST',
+						    headers: headers,
+						    form: {"id":s3.key}
+						}
+
+						// Start the request
+						request(options, function (error, response, body) {
+						    if (!error && response.statusCode == 200) {
+						    	var body_key = response.body;
+						    	var key = body_key.split(">");
+						    	combined_string = combined_string+"**"+key[1];
+						    	console.log("Recieve key : "+JSON.stringify(key[1]));
+
+						    	console.timeEnd("Host distribute : "+s3.ip);
+								console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);
+
+						    	console.log(combined_string);
+								socket.emit("setKey", combined_string);
+
+						    }else{
+						    	console.log("Recieve key : "+JSON.stringify(response));
+						    }
+
+						});
 
 						/*HOST3*/
 
