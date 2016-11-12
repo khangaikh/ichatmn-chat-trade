@@ -926,7 +926,8 @@ io.sockets.on("connection", function (socket) {
 	        		var fileName =  row.secret_name; 
 	        		console.log(fileName);
 	        		console.log("File sending");
-					socket.emit("getFileDownload",fileName);
+	        		var file  = __dirname+"/"+fileName;
+					socket.emit("getFileDownload",file);
 			    });  
 			}
         });
