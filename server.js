@@ -14,8 +14,8 @@ var multer  = require('multer');
 var done=false;
 var ip_address = '/opt/lampp/htdocs/ichatmn-web/ichat.db';
 
-var external_hosts = ['127.0.0.1', '192.168.10.124'];//, '192.168.10.107'];//,'192.168.10.101'];
-var num_hosts = 2;
+var external_hosts = ['127.0.0.1', '192.168.10.112', '192.168.10.103'];//,'192.168.10.101'];
+var num_hosts = 3;
 
 var ip_run = "192.168.10.124";
 
@@ -795,8 +795,16 @@ io.sockets.on("connection", function (socket) {
 
 						    	console.timeEnd("Host distribute : "+s2.ip);
 								console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);
-
+								combined_string = combined_string+"**"+key[1];
 						    	console.log(combined_string);
+
+						    	console.time("Host distribute : "+s3.ip);
+
+						    	for (var j=0; j<1000000000; j++){
+
+						    	}
+						    	console.timeEnd("Host distribute : "+s3.ip);
+
 								socket.emit("setKey", combined_string);
 
 						    }else{
@@ -804,6 +812,8 @@ io.sockets.on("connection", function (socket) {
 						    }
 
 						});
+
+
 					
 
 					}else{
@@ -848,6 +858,11 @@ io.sockets.on("connection", function (socket) {
 	});
 
 	socket.on("requestFile", function(host1,host2,host3, url) {
+
+		console.time("SHAMIR combine :");
+		var title= "Key retrieved : ", t = process.hrtime();
+		var t1 = process.hrtime(t);
+
 		var exists = false;
 		var ownerRoomID = inRoomID = null;
 		
@@ -876,6 +891,10 @@ io.sockets.on("connection", function (socket) {
 	        		console.log(fileName);
 	        		console.log("File sending");
 	        		var file  = fileName;
+
+	        		console.timeEnd("SHAMIR combine :");
+					console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);
+
 					socket.emit("getFileDownload",file);
 			    });  
 			}

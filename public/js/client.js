@@ -428,7 +428,7 @@ $(document).ready(function() {
   socket.on("getFileDownload", function(msg) {
     $("#errors").hide();
     $("#buyer_step3").empty();
-    $("#buyer_step3").append("<p><strong>Step 3: </strong></strong>Please download original file here :<a href='http://localhost/ichatmn-web/upload/"+msg+"' download='proposed_file_name'>Download now</a></p>");
+    $("#buyer_step3").append("<p><strong>Step 3: </strong></strong>Please download original file here :<a href='http://"+ip_run+"/ichatmn-web/"+msg+"' download='proposed_file_name'>Download now</a></p>");
   });
 
   $("#clearing").click(function() {
