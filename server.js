@@ -739,7 +739,7 @@ io.sockets.on("connection", function (socket) {
 						    	combined_string = combined_string+"**"+key[1];
 						    	console.log("Recieve key : "+JSON.stringify(key[1]));
 						    	console.timeEnd("Host distribute : "+s1.ip);
-								console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);
+								//console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);
 
 						    }else{
 						    	console.log("Recieve key : "+JSON.stringify(response));
@@ -794,7 +794,7 @@ io.sockets.on("connection", function (socket) {
 						    	console.log("Recieve key : "+JSON.stringify(key[1]));
 
 						    	console.timeEnd("Host distribute : "+s2.ip);
-								console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);
+								//console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);
 								combined_string = combined_string+"**"+key[1];
 						    	console.log(combined_string);
 
@@ -893,7 +893,7 @@ io.sockets.on("connection", function (socket) {
 	        		var file  = fileName;
 
 	        		console.timeEnd("SHAMIR combine :");
-					console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);
+					//console.log("%s %d seconds and %d nanoseconds", title, t1[0], t1[1]);
 
 					socket.emit("getFileDownload",file);
 			    });  
